@@ -21,6 +21,7 @@ dependencies:
   - tk=8.6.12=h1ccaba5_0
   - xz=5.2.10=h5eee18b_1
   - zlib=1.2.13=h5eee18b_0
+  - pip
   - pip:
     - accelerate==0.18.0
     - anyio==3.6.2
