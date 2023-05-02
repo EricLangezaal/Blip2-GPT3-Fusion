@@ -4,7 +4,7 @@ model:
   use_grad_checkpoint: False
 
 paths:
-  cache_root: datasets/
+  cache_root: export/
 
 datasets:
   coco_vqa: # name of the dataset builder

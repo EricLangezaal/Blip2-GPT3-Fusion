@@ -14,10 +14,12 @@ from lavis.common.optims import (
     LinearWarmupCosineLRScheduler,
     LinearWarmupStepLRScheduler,
 )
+from lavis.common.registry import registry
 from lavis.common.utils import now
 
 # imports modules for registration
 from lavis.datasets.builders import *
+from lavis.datasets.builders import load_dataset
 from lavis.models import *
 from lavis.processors import *
 from lavis.runners.runner_base import RunnerBase
@@ -74,6 +76,7 @@ def main():
     cfg.pretty_print()
 
     task = tasks.setup_task(cfg)
+    registry.mapping['paths']['cache_root'] = 'export'
     datasets = task.build_datasets(cfg)
     model = task.build_model(cfg)
 
