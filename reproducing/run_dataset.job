@@ -2,12 +2,12 @@
 
 #SBATCH --partition=gpu_titanrtx_shared_course
 #SBATCH --gres=gpu:1
-#SBATCH --job-name=EvalBlip
+#SBATCH --job-name=DatasetBlip
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=3
 #SBATCH --time=04:00:00
 #SBATCH --mem=64000M
-#SBATCH --output=eval_%A.out
+#SBATCH --output=dataset_%A.out
 
 module purge
 module load 2021

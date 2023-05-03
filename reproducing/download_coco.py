@@ -34,10 +34,8 @@ def download_datasets(root, url):
 
 if __name__ == "__main__":
 
-    #### HIER EIGEN LCUR1740 VERANDEREN IN EIGEN USERNAME
-    # kunnen later wel fixen met current working dir ofzo.
-    config_path = "/home/lcur1740/DL2/reproducing/settings/coco_eval_vqa.yaml" 
-    registry.mapping['paths']['cache_root'] = '/home/lcur1740/DL2/reproducing/export'
+    config_path = Path.cwd() / "settings/coco_eval_vqa.yaml" 
+    registry.mapping['paths']['cache_root'] = Path.cwd() / 'export'
 
     storage_dir = OmegaConf.load(
         config_path
