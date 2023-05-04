@@ -72,6 +72,7 @@ dependencies:
     - jupyterlab-pygments==0.2.2
     - jupyterlab-widgets==3.0.7
     - kiwisolver==1.4.4
+    - salesforce-lavis==1.0.2
     - lit==16.0.2
     - markupsafe==2.1.2
     - matplotlib==3.7.1
@@ -98,7 +99,7 @@ dependencies:
     - nvidia-cusparse-cu11==11.7.4.91
     - nvidia-nccl-cu11==2.14.3
     - nvidia-nvtx-cu11==11.7.91
-    - omegaconf=2.3.0
+    - omegaconf==2.3.0
     - packaging==23.1
     - pandas==2.0.1
     - pandocfilters==1.5.0
@@ -145,7 +146,7 @@ dependencies:
     - tornado==6.3.1
     - tqdm==4.65.0
     - traitlets==5.9.0
-    - transformers==4.28.1
+    - transformers==4.25.0
     - triton==2.0.0
     - typing-extensions==4.5.0
     - tzdata==2023.3
