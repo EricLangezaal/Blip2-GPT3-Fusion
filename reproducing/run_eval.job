@@ -17,4 +17,4 @@ module load Anaconda3/2021.05
 # Activate your environment
 source activate dl2
 # Run your code
-python -m torch.distributed.run --nproc_per_node=1 evaluate.py --cfg-path settings/vqav2_opt27b.yaml
+python -m torch.distributed.run --nnodes=4 --nproc_per_node=1 evaluate.py --cfg-path settings/vqav2_opt27b.yaml
