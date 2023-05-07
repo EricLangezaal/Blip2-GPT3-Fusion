@@ -5,7 +5,7 @@
 #SBATCH --job-name=EvalBlip
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=3
-#SBATCH --time=04:00:00
+#SBATCH --time=10:00:00
 #SBATCH --mem=64000M
 #SBATCH --output=eval_%A.out
 
@@ -17,4 +17,5 @@ module load Anaconda3/2021.05
 # Activate your environment
 source activate dl2
 # Run your code
-python -m torch.distributed.run --nnodes=4 --nproc_per_node=1 evaluate.py --cfg-path settings/vqav2_opt27b.yaml
+# python -m torch.distributed.run --nnodes=4 --nproc_per_node=1 evaluate.py --cfg-path settings/vqav2_opt27b.yaml
+python -m torch.distributed.run --nproc_per_node=1 evaluate.py --cfg-path settings/vqav2_opt27b.yaml

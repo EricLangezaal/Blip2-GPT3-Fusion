@@ -28,7 +28,7 @@ run:
   task: vqa
   # optimization-specific
   batch_size_train: 16
-  batch_size_eval: 64
+  batch_size_eval: 32
   num_workers: 4
 
   # inference-specific
@@ -47,6 +47,6 @@ run:
 
   # distribution-specific
   device: "cuda"
-  world_size: 4
+  world_size: 1
   dist_url: "env://"
   distributed: True
