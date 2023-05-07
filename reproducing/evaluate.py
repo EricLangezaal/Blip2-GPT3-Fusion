@@ -1,6 +1,6 @@
 import argparse
+from pathlib import Path
 import random
-import os
 
 import numpy as np
 import torch
@@ -24,6 +24,8 @@ from lavis.models import *
 from lavis.processors import *
 from lavis.runners.runner_base import RunnerBase
 from lavis.tasks import *
+
+from flan_t5_int8 import Blip2T5int8
 
 
 def parse_args():
@@ -76,7 +78,7 @@ def main():
     cfg.pretty_print()
 
     task = tasks.setup_task(cfg)
-    registry.mapping['paths']['cache_root'] = 'export'
+    registry.mapping['paths']['cache_root'] = Path.cwd() / 'export'
     datasets = task.build_datasets(cfg)
     model = task.build_model(cfg)
 

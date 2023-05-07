@@ -1,5 +1,5 @@
 model:
-  arch: blip2_t5
+  arch: blip2_t5_int8
   model_type: pretrain_flant5xl
   use_grad_checkpoint: False
 
