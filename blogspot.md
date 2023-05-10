@@ -27,6 +27,7 @@ The original BLIP-2 paper[^5] outlines 3 such datasets, which we also use for re
 
 
 ## Reproduction
+The reproduction goal of our research focuses on a specific part of the results presented in the original BLIP-2 paper. In this work, we are mainly interested in the performance of models on the zero-shot visual question answering task. The results of various models on the datasets mentioned in the previous section are presented in table 2 of the original paper which can be seen below.
 
 ## Pipeline (maybe rename?)
 
