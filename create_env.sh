@@ -8,5 +8,6 @@ source activate dl2
 conda install cudatoolkit -y
 pip install ipykernel accelerate==0.18.0 bitsandbytes==0.38.1
 pip install git+https://github.com/salesforce/LAVIS.git
+python -m spacy download en
 cd ~/.conda/envs/dl2/lib/python3.10/site-packages/bitsandbytes
 cp libbitsandbytes_cuda117.so libbitsandbytes_cpu.so
