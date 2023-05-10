@@ -26,6 +26,7 @@ from lavis.runners.runner_base import RunnerBase
 from lavis.tasks import *
 
 from flan_t5_int8 import Blip2T5int8
+from flan_t5_gpt3_int8 import Blip2T5gtp3int8
 
 
 def parse_args():
