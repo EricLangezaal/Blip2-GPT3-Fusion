@@ -314,17 +314,17 @@ class Blip2T5gtp3int8(Blip2Base):
         encoder_atts_new = torch.cat([atts_t5, description_tokens.attention_mask], dim=1)
 
         description_embeds = self.t5_model.encoder.embed_tokens(description_tokens.input_ids)
-        inputs_embeds = torch.cat([inputs_t5, description_embeds], dim=1)
+        description_embeds = torch.cat([inputs_t5, description_embeds], dim=1)
 
         photo_descriptions = self.t5_model.generate(
             inputs_embeds=description_embeds,
             attention_mask=encoder_atts_new,
             do_sample=False,
             num_beams=num_beams,
-            # MAX LENGTH FOR PHOTO DESCRIPTION?
-            max_new_tokens=15,
-            min_length=min_len,
-            length_penalty=length_penalty,
+            # TODO: OPTIMISE SETTINGS FOR PHOTO DESCRIPTION!
+            max_new_tokens=20,
+            min_length=5,
+            length_penalty=2,
         )
         photo_description_text = self.t5_tokenizer.batch_decode(
             photo_descriptions, skip_special_tokens=True

@@ -30,7 +30,7 @@ run:
   task: vqa
   # optimization-specific
   batch_size_train: 16
-  batch_size_eval: 64
+  batch_size_eval: 8
   num_workers: 4
 
   # inference-specific
@@ -41,7 +41,7 @@ run:
   prompt: "Question: {} Short answer:"
 
   seed: 42
-  output_dir: "output/BLIP2/OKVQA"
+  output_dir: "output/flan5xlgpt3/OKVQA"
 
   evaluate: True
   test_splits: ["test"]
