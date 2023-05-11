@@ -38,8 +38,8 @@ The red boxes indicate the results that we attempted to reproduce in our work. W
 
 | Models | VQAv2 | OK-VQA | GQA |
 | --- | --- | --- | --- |
-| BLIP-2 ViT~g~ OPT~2.7B~ | | | |
-| BLIP-2 ViT~g~ FlanT5~XL~ | | | |
+| BLIP-2 ViT<sub>g</sub> OPT<sub>2.7B</sub> | | | |
+| BLIP-2 ViT<sub>g</sub> FlanT5<sub>XL</sub> | | | |
 
 ## Pipeline (maybe rename?)
 
