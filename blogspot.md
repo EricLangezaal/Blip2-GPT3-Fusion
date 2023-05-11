@@ -36,6 +36,11 @@ The reproduction goal of our research focuses on a specific part of the results 
 
 The red boxes indicate the results that we attempted to reproduce in our work. We focus on the bottom section of the table since only the BLIP-2 model itself is within the scope of this research. For the frozen vision transformer, we only utilize the ViT-g (ref) model for reproduction since the ViT-L (ref) model was not available to us. As for the frozen large language models, we include both the OPT (ref) as well as the FlanT5 (ref) model in our reproduction study. We test for both models only their smaller variants, namely the 2.7B and XL versions for OPT and FlanT5 respectively, since our compute resources limit us to not use their larger counterparts (6.7B and XXL variants).
 
+|Models|VQAv2|OK-VQA|GQA|
+|---|---|---|---|
+|BLIP-2 ViT_g OPT_2.7B| | | |
+|BLIP-2 ViT_g FlanT5_XL| | | |
+
 ## Pipeline (maybe rename?)
 
 ## References
