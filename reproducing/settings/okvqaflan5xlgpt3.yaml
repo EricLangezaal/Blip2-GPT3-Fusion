@@ -41,7 +41,7 @@ run:
   prompt: "Question: {} Short answer:"
 
   seed: 42
-  output_dir: "output/flan5xlgpt3/OKVQA"
+  output_dir: "output/OKVQA/flan5xlgpt3/"
 
   evaluate: True
   test_splits: ["test"]
