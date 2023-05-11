@@ -31,8 +31,10 @@ def gpt_generate_questions(input_questions, temperature=0.7):
        
     return gpt_questions
 
-def prompt_question(question):
-    return f"Question: {question} Short answer:"
+def prompt_question(questions):
+    if isinstance(questions, list):
+      return [f"Question: {q} Short answer:" for q in questions]
+    return f"Question: {questions} Short answer:"
 
 def summarized_gpt(questions, answers, original_question, original_answer, temperature=0.7):
     """

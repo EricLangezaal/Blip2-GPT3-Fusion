@@ -365,7 +365,7 @@ class Blip2T5gtp3int8(Blip2Base):
             print("THe answers to those GPT questions:", answers)
             print("FINAL answer: ", gpt_summarized, "\n")        
         ################ ADDED PART ######################
-        time.sleep(60)
+        time.sleep(2)
         return gpt_summarised_batch
 
     def _lemmatize(self, answers):
