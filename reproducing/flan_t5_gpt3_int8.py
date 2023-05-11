@@ -325,7 +325,7 @@ class Blip2T5gtp3int8(Blip2Base):
             description_embeds = torch.cat([inputs_t5, description_embeds], dim=1)
             
 
-            photo_descriptions = self.t5_model.generate(
+            answer_to_gpt_embed = self.t5_model.generate(
                 inputs_embeds=description_embeds,
                 attention_mask=encoder_atts_new,
                 do_sample=False,
@@ -335,34 +335,32 @@ class Blip2T5gtp3int8(Blip2Base):
                 min_length=5,
                 length_penalty=2,
             )
-            photo_description_text = self.t5_tokenizer.batch_decode(
-                photo_descriptions, skip_special_tokens=True
+            answer_to_gpt_question = self.t5_tokenizer.batch_decode(
+                answer_to_gpt_embed, skip_special_tokens=True
             )
 
-            listed_answers.append(photo_description_text)
+            listed_answers.append(answer_to_gpt_question)
         
         listed_answers = list(zip(*listed_answers))
 
-        for questions, answers in zip(gpt_questions, listed_answers):
-            
-
+        gpt_summarised_batch = []
+        for questions, answers, org_question, org_answer in zip(gpt_questions, listed_answers, text_input, output_text):
+            gpt_summarised_batch.append(summarized_gpt(questions, answers, org_question, org_answer))
 
         if self._apply_lemmatizer:
-            photo_description_text = self._lemmatize(photo_description_text)
+            gpt_summarised_batch = self._lemmatize(gpt_summarised_batch)
         
 
         print('new batch')
-        print(photo_description_text)
-        print('side by side:')
-        for question, answer, description in zip(text_input, output_text, photo_description_text):
-            print('question: ', question)
-            print('answer: ', answer)
-            print('description: ', description)
-            print('-------')
-        
+        for gpt_summarized, questions, answers, org_question, org_answer in zip(gpt_summarised_batch, gpt_questions, listed_answers, text_input, output_text):
+            print("Original question: ", org_question)
+            print("Original answer: ", org_answer)
+            print("GPT generated questions:", questions)
+            print("THe answers to those GPT questions:", answers)
+            print("FINAL answer: ", gpt_summarized, "\n")        
         ################ ADDED PART ######################
 
-        return output_text
+        return gpt_summarised_batch
 
     def _lemmatize(self, answers):
         def apply(answer):
