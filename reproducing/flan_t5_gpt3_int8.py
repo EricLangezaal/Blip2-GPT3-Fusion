@@ -15,6 +15,9 @@ from lavis.common.registry import registry
 from lavis.models.blip2_models.blip2 import Blip2Base, disabled_train
 from lavis.models.blip2_models.modeling_t5 import T5Config, T5ForConditionalGeneration
 
+import openai
+
+from gpt_utils import *
 
 @registry.register_model("blip2_t5_gpt3_int8")
 class Blip2T5gtp3int8(Blip2Base):
@@ -308,27 +311,41 @@ class Blip2T5gtp3int8(Blip2Base):
         
         #################### ADDED PART  ########################################
         # GENERATION OF OBJECT DESCRIPTION
-        description_prompt = ["What is in the photo?"] * len(text_input)
-        description_tokens = self.t5_tokenizer(
-            description_prompt, padding="longest", return_tensors="pt").to(image.device)
-        encoder_atts_new = torch.cat([atts_t5, description_tokens.attention_mask], dim=1)
+        openai_api_key = "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"
+        openai.api_key = openai_api_key
 
-        description_embeds = self.t5_model.encoder.embed_tokens(description_tokens.input_ids)
-        description_embeds = torch.cat([inputs_t5, description_embeds], dim=1)
+        gpt_questions = list(zip(*gpt_generate_questions(text_input)))
+        listed_answers = []
+        for batch in gpt_questions:
+            description_tokens = self.t5_tokenizer(
+                list(batch), padding="longest", return_tensors="pt").to(image.device)
+            encoder_atts_new = torch.cat([atts_t5, description_tokens.attention_mask], dim=1)
 
-        photo_descriptions = self.t5_model.generate(
-            inputs_embeds=description_embeds,
-            attention_mask=encoder_atts_new,
-            do_sample=False,
-            num_beams=num_beams,
-            # TODO: OPTIMISE SETTINGS FOR PHOTO DESCRIPTION!
-            max_new_tokens=20,
-            min_length=5,
-            length_penalty=2,
-        )
-        photo_description_text = self.t5_tokenizer.batch_decode(
-            photo_descriptions, skip_special_tokens=True
-        )
+            description_embeds = self.t5_model.encoder.embed_tokens(description_tokens.input_ids)
+            description_embeds = torch.cat([inputs_t5, description_embeds], dim=1)
+            
+
+            photo_descriptions = self.t5_model.generate(
+                inputs_embeds=description_embeds,
+                attention_mask=encoder_atts_new,
+                do_sample=False,
+                num_beams=num_beams,
+                # TODO: OPTIMISE SETTINGS FOR PHOTO DESCRIPTION!
+                max_new_tokens=20,
+                min_length=5,
+                length_penalty=2,
+            )
+            photo_description_text = self.t5_tokenizer.batch_decode(
+                photo_descriptions, skip_special_tokens=True
+            )
+
+            listed_answers.append(photo_description_text)
+        
+        listed_answers = list(zip(*listed_answers))
+
+        for questions, answers in zip(gpt_questions, listed_answers):
+            
+
 
         if self._apply_lemmatizer:
             photo_description_text = self._lemmatize(photo_description_text)
