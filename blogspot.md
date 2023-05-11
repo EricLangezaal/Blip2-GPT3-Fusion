@@ -43,7 +43,17 @@ Our reproduction results are presented in the table below. Based on the results 
 | BLIP-2 ViT<sub>g</sub> OPT<sub>2.7B</sub> | 53.4 | 31.8 | |
 | BLIP-2 ViT<sub>g</sub> FlanT5<sub>XL</sub> | | 39.3| |
 
-## Pipeline (maybe rename?)
+## Extending BLIP-2 with GPT3
+
+PROBLEM DESCRIPTION OF BLIP2 (NOT ENOUGH GENERAL REAL WORLD KNOWLEDGE PERHAPS?)
+
+In this research project we aim at tackling this main bottleneck of the BLIP-2 model by combining BLIP-2's advanced visual question answering capabilities with the general real-world knowledge of GPT-3.  The extension is primarily focused on augmenting the performance of the model on the OK-VQA dataset, which is specifically designed to necessitate external knowledge to answer the posed questions. We will utillize the GPT-3 model in combination with extra visual information extracted from BLIP-2 to verify and potentially enhanche the original responses provided by the BLIP-2 model to the OK-VQA instances.
+
+We do so by utilizing the GPT-3 API in two significant ways. JESSE GAAT MORGENOCHTEND VERDER
+
+RESULTS AND ANALYSIS
+
+CONCLUSION
 
 ## References
 [^1]: Brown, T. B., Mann, B., Ryder, N., Subbiah, M., Kaplan, J., Dhariwal, P., Amodei, D. (2020). Language models are few-shot learners.
