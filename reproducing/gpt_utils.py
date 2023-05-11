@@ -53,5 +53,5 @@ def summarized_gpt(questions, answers, original_question, original_answer, tempe
       max_tokens = 150,
       temperature=temperature)
 
-    return response["choices"][0]['message']["content"].strip()
+    return re.search("[a-zA-Z].*[a-zA-Z]", response["choices"][0]['message']["content"].strip()).group()
 

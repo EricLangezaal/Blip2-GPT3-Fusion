@@ -23,7 +23,7 @@ conda install cudatoolkit -y
 
 Install dependencies required for the HuggingFace model quantization, and the LAVIS package from source 
 ```bash
-pip install ipykernel accelerate==0.18.0 bitsandbytes==0.38.1
+pip install ipykernel accelerate==0.18.0 bitsandbytes==0.38.1 openai
 pip install git+https://github.com/salesforce/LAVIS.git
 ```
 

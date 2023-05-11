@@ -30,7 +30,7 @@ run:
   task: vqa
   # optimization-specific
   batch_size_train: 16
-  batch_size_eval: 8
+  batch_size_eval: 1
   num_workers: 4
 
   # inference-specific
@@ -38,7 +38,7 @@ run:
   min_len: 1
   num_beams: 5
   inference_method: "generate"
-  prompt: "Question: {} Short answer:"
+  prompt: "{}"
 
   seed: 42
   output_dir: "output/OKVQA/flan5xlgpt3/"
@@ -50,4 +50,4 @@ run:
   device: "cuda"
   world_size: 1
   dist_url: "env://"
-  distributed: True
+  distributed: False

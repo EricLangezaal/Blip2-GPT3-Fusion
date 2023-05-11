@@ -10,6 +10,7 @@ import torch
 import torch.nn as nn
 from torch.cuda.amp import autocast as autocast
 from transformers import T5TokenizerFast
+import time
 
 from lavis.common.registry import registry
 from lavis.models.blip2_models.blip2 import Blip2Base, disabled_train
@@ -283,9 +284,12 @@ class Blip2T5gtp3int8(Blip2Base):
         else:
             text_input = samples["text_input"]
 
+        prompted_text_input = f"Question: {text_input} Short answer:"
+
         input_tokens = self.t5_tokenizer(
-            text_input, padding="longest", return_tensors="pt"
+            prompted_text_input, padding="longest", return_tensors="pt"
         ).to(image.device)
+        
 
         # GENERATION OF REGULAR ANSWER
         encoder_atts = torch.cat([atts_t5, input_tokens.attention_mask], dim=1)
@@ -315,6 +319,10 @@ class Blip2T5gtp3int8(Blip2Base):
         openai.api_key = openai_api_key
 
         gpt_questions = list(zip(*gpt_generate_questions(text_input)))
+        if len(text_input) == 1:
+            gpt_questions = [[el[0] for el in gpt_questions]]
+
+        print(gpt_questions)
         listed_answers = []
         for batch in gpt_questions:
             description_tokens = self.t5_tokenizer(
@@ -342,6 +350,7 @@ class Blip2T5gtp3int8(Blip2Base):
             listed_answers.append(answer_to_gpt_question)
         
         listed_answers = list(zip(*listed_answers))
+        print(listed_answers)
 
         gpt_summarised_batch = []
         for questions, answers, org_question, org_answer in zip(gpt_questions, listed_answers, text_input, output_text):
@@ -359,7 +368,7 @@ class Blip2T5gtp3int8(Blip2Base):
             print("THe answers to those GPT questions:", answers)
             print("FINAL answer: ", gpt_summarized, "\n")        
         ################ ADDED PART ######################
-
+        time.sleep(60)
         return gpt_summarised_batch
 
     def _lemmatize(self, answers):
