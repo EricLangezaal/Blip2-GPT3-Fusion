@@ -245,6 +245,7 @@ class Blip2T5gtp3int8(Blip2Base):
 
         return output_text
 
+
     def predict_answers(
         self,
         samples,
@@ -284,7 +285,7 @@ class Blip2T5gtp3int8(Blip2Base):
         else:
             text_input = samples["text_input"]
 
-        prompted_text_input = f"Question: {text_input} Short answer:"
+        prompted_text_input = prompt_question(text_input)
 
         input_tokens = self.t5_tokenizer(
             prompted_text_input, padding="longest", return_tensors="pt"
@@ -318,13 +319,10 @@ class Blip2T5gtp3int8(Blip2Base):
         openai_api_key = "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"
         openai.api_key = openai_api_key
 
-        gpt_questions = list(zip(*gpt_generate_questions(text_input)))
-        if len(text_input) == 1:
-            gpt_questions = [[el[0] for el in gpt_questions]]
+        gpt_questions = gpt_generate_questions(text_input)
 
-        print(gpt_questions)
         listed_answers = []
-        for batch in gpt_questions:
+        for batch in list(zip(*gpt_questions)):
             description_tokens = self.t5_tokenizer(
                 list(batch), padding="longest", return_tensors="pt").to(image.device)
             encoder_atts_new = torch.cat([atts_t5, description_tokens.attention_mask], dim=1)
@@ -350,7 +348,6 @@ class Blip2T5gtp3int8(Blip2Base):
             listed_answers.append(answer_to_gpt_question)
         
         listed_answers = list(zip(*listed_answers))
-        print(listed_answers)
 
         gpt_summarised_batch = []
         for questions, answers, org_question, org_answer in zip(gpt_questions, listed_answers, text_input, output_text):
