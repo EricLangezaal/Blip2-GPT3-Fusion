@@ -31,10 +31,10 @@ The original BLIP-2 paper[^5] outlines 3 such datasets, which we also use for re
 
 
 ## Reproduction
-The reproduction goal of our research focuses on a specific part of the results presented in the original BLIP-2 paper. In this work, we are interested in the performance of models on the zero-shot visual question answering task. The results of various models on the datasets mentioned in the previous section are presented in table 2 of the original paper which can be seen below.
-![](/images/reproduction_table.jpeg)
+The reproduction goal of our research focuses on a specific part of the results presented in the BLIP-2 paper. The original paper evaluates the performance of the BLIP-2 model on a variety of tasks such as visual question answering, image captioning and image-text retrieval. Since we aim in this research to enhance the in-context learning capabilities of BLIP-2 by combining its' strenghts with those of the GPT3 LLM we are interested in the performance of models on the VQA task. The achieved results on this task of various models on the datasets mentioned in the previous section are presented in table 2 of the original paper and can be seen below.
+![](/images/reproduction_table.png)
 
-The red boxes indicate the results that we attempted to reproduce in our work. We focus on the bottom section of the table since only the BLIP-2 model itself is within the scope of this research. For the frozen vision transformer, we only utilize the ViT-g (ref) model for reproduction since the ViT-L (ref) model was not available to us. As for the frozen large language models, we include both the OPT (ref) as well as the FlanT5 (ref) model in our reproduction study and test for both models their smaller and larger counterparts which are the 2.7B/6.7B and XL/XXL variants for OPT and FlantT5 respectively.
+The red boxes indicate the results that we attempted to reproduce in our work. We focus on the bottom section of the table since only the BLIP-2 model itself is within the scope of this research. For the frozen vision transformer, we only utilize the ViT-g (ref) model for reproduction since the ViT-L (ref) model was not available to us. As for the frozen large language models, we include both the OPT (ref) as well as the FlanT5 (ref) model in our reproduction study. We test for both models only their smaller variants, namely the 2.7B and XL versions for OPT and FlanT5 respectively, since our compute resources limit us to not use their larger counterparts (6.7B and XXL variants).
 
 ## Pipeline (maybe rename?)
 
