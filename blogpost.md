@@ -46,7 +46,7 @@ Our reproduction results are presented in the table below. Based on the results 
 ## Extending BLIP-2 with GPT3
 
 The performance of BLIP-2 in visual question answering is subject to limitations due to inaccurate knowledge from the Large Language Model. As a result, despite correctly obtaining the visual information, BLIP-2 may generate incorrect inferences and ultimately produce unsatisfactory answers. For instance, BLIP-2 might be able to effectively recognize the object depicted in an image, but its' reasoning process may fail to correctly answer a related question. An example of this can be seen in the figure below, where BLIP-2's line of reasoning falls short since it does not consider weather circumstances of the location mentioned.
-| |
+|  |
 | :----: | 
 | ![](/images/blip_reasoning_example.jpeg) |
 
