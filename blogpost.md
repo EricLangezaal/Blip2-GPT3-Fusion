@@ -46,7 +46,7 @@ Our reproduction results are presented in the table below. Based on the results 
 | Models | VQAv2 | OK-VQA | GQA |
 | --- | --- | --- | --- |
 | BLIP-2 ViT<sub>g</sub> OPT<sub>2.7B</sub> | 53.4 | 31.8 | |
-| BLIP-2 ViT<sub>g</sub> FlanT5<sub>XL</sub> | 61.79 | 39.3| |
+| BLIP-2 ViT<sub>g</sub> FlanT5<sub>XL</sub> | 61.8 | 39.3| |
 
 ## Extending BLIP-2 with GPT3
 
