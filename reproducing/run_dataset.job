@@ -17,4 +17,4 @@ module load Anaconda3/2021.05
 # Activate your environment
 source activate dl2
 # Run your code
-python3 download_coco.py
+python3 download_gqa.py

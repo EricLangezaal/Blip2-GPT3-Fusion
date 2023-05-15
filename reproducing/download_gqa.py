@@ -17,6 +17,8 @@ from lavis.common.utils import (
     get_cache_path,
 )
 
+from lavis.common.registry import registry
+
 
 DATA_URL = "https://downloads.cs.stanford.edu/nlp/data/gqa/images.zip"
 
@@ -26,7 +28,7 @@ def download_datasets(root, url):
 
 
 if __name__ == "__main__":
-    config_path = Path.cwd() / "settings/gqa_default.yaml"
+    config_path = Path.cwd() / "settings/download_gqa.yaml"
     # config_path = get_abs_path("configs/datasets/gqa/defaults.yaml")
     registry.mapping['paths']['cache_root'] = Path.cwd() / 'export'
 

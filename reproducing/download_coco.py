@@ -34,7 +34,7 @@ def download_datasets(root, url):
 
 if __name__ == "__main__":
 
-    config_path = Path.cwd() / "settings/coco_eval_vqa.yaml" 
+    config_path = Path.cwd() / "settings/download_vqa.yaml" 
     registry.mapping['paths']['cache_root'] = Path.cwd() / 'export'
 
     storage_dir = OmegaConf.load(
