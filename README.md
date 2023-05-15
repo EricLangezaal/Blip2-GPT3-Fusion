@@ -23,8 +23,13 @@ conda install cudatoolkit -y
 
 Install dependencies required for the HuggingFace model quantization, and the LAVIS package from source 
 ```bash
-pip install ipykernel accelerate==0.18.0 bitsandbytes==0.38.1
+pip install ipykernel accelerate==0.18.0 bitsandbytes==0.38.1 openai
 pip install git+https://github.com/salesforce/LAVIS.git
+```
+
+Download 'en_core_web_sm'
+```bash
+python -m spacy download en
 ```
 
 Modify the installed version of BitsAndBytes if you get errors indicating 'missing symbols'. Our CUDA version was '117' for example.
