@@ -46,7 +46,7 @@ Our reproduction results are presented in the table below. Based on the results 
 | Models | VQAv2 | OK-VQA | GQA |
 | --- | --- | --- | --- |
 | BLIP-2 ViT<sub>g</sub> OPT<sub>2.7B</sub> | 53.4 | 31.8 | |
-| BLIP-2 ViT<sub>g</sub> FlanT5<sub>XL</sub> | 61.79 | 39.3| |
+| BLIP-2 ViT<sub>g</sub> FlanT5<sub>XL</sub> | 61.8 | 39.3| |
 
 The LAVIS library by Salesforce [^17] provides an out-of-the-box approach to evaluating BLIP-2 with various different frozen Language Models. Through a single python file, evaluate.py, an end-user can easily configure which model that he wants to evaluate. The variety of LMs all come with their respective configuration file. Moreover, it supplies python scripts for downloading the different datasets that can be used with BLIP.  
 
