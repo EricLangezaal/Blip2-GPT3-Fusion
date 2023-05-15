@@ -5,7 +5,7 @@
 #SBATCH --job-name=DatasetBlip
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=3
-#SBATCH --time=04:00:00
+#SBATCH --time=10:00:00
 #SBATCH --mem=64000M
 #SBATCH --output=dataset_%A.out
 
