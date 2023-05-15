@@ -19,6 +19,9 @@ Vondrick and Menon[^13] present a method to enhance zero-shot classification per
 
 In a recent paper, Liu et al. [^15] showcase a model that leverages an ensemble of pre-trained expert models to create several vision-language capabilities. Their full model, Prismer, relies on the efficiency of other models that have been trained to be state-of-the-art in their respective modality. For example, the set of expert models can include a variety of networks that examine objects within an image, that can do Optical Character Recognition (OCR) and are capable of distinguishing the various parts of an image (segmentation). The combined information these models are then processed by a smaller sized network which translates the information into text encodings; this is alike the Q-Former's functionality in BLIP-2. Akin to BLIP, the smaller model then proceeds to pass the encodings to a language decoder that outputs a prediction, caption or answers a visual question. It might be interesting to explore the possibilities of adding such ensembles of experts to the vision stage of BLIP along with the suggested adjustments in this paper.
 
+Hu et al. [^16] demonstrated that the world knowledge of GPT-3 can be conveniently taken advantage of with their question-aware captioning model PromptCap. The PromptCap model is a small trainable model which generates context for the question GPT answers at a later stage. For instance, a sample question for an image of a microscope could be: 'Who invented this apparatus?'. PromptCap then generates a small caption belonging to the image which could be along the lines of: 'This is a researcher looking through a microscope'. Thereafter, GPT-3 is prompted with the combination of the question and caption. The question and caption are sufficient for GPT-3 to answer: 'A Dutch spectacle maker named Zacharias Janssen'. The PromptCap model is similar to BLIP-2 to a high degree. Instead of applying the power of a pre-trained vision model, PromptCap transforms the image to text immediately. Our research builds on the usage of GPT-3 in related fashion. Rather than supplying GPT-3 with a single caption, we ask it to generate multiple questions which eventually aid in answering the original question related to the image in the dataset. 
+
+
 ## Datasets
 As outlined in the introduction we focus specifically on Visual Question Answering[^7] datasets. These datasets consists of images, for example extracted from the COCO dataset[^8], each with various questions and a bunch of exemplar answers per question. These answers are often only a few words, such that some form of quantitative evaluation can be performed by matching a model's output with these answers. 
 
@@ -43,7 +46,7 @@ Our reproduction results are presented in the table below. Based on the results 
 | Models | VQAv2 | OK-VQA | GQA |
 | --- | --- | --- | --- |
 | BLIP-2 ViT<sub>g</sub> OPT<sub>2.7B</sub> | 53.4 | 31.8 | |
-| BLIP-2 ViT<sub>g</sub> FlanT5<sub>XL</sub> | | 39.3| |
+| BLIP-2 ViT<sub>g</sub> FlanT5<sub>XL</sub> | 61.79 | 39.3| |
 
 ## Extending BLIP-2 with GPT3
 
@@ -94,3 +97,5 @@ International conference on machine learning* (pp. 12888–12900).
 [^14]: Radford, A., Kim, J. W., Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., ... & Sutskever, I. (2021, July). Learning transferable visual models from natural language supervision. In International conference on machine learning (pp. 8748-8763). PMLR.
 
 [^15]: Liu, S., Fan, L., Johns, E., Yu, Z., Xiao, C., & Anandkumar, A. (2023). Prismer: A Vision-Language Model with An Ensemble of Experts. ArXiv Preprint ArXiv:2303. 02506.
+
+[^16]: Hu, Y., Hua, H., Yang, Z., Shi, W., Smith, N. A., & Luo, J. (2022). PromptCap: Prompt-Guided Task-Aware Image Captioning. ArXiv Preprint ArXiv:2211. 09699.
