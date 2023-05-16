@@ -26,7 +26,7 @@ def gpt_generate_questions(input_questions, temperature=0.7):
     for question in input_questions:
        questions = prompt_chat_gpt(question, temperature=temperature)
        questions = questions.split('\n')
-       questions = [prompt_question(re.search("[a-zA-Z].*", question).group()) for question in questions]
+       questions = [re.search("[a-zA-Z].*", question).group() for question in questions]
        gpt_questions.append(questions)
        
     return gpt_questions
