@@ -4,8 +4,8 @@
  # For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
 
 model:
-  arch: blip2_opt
-  model_type: pretrain_opt2.7b
+  arch: blip2_t5
+  model_type: pretrain_flant5xl
   use_grad_checkpoint: False
 
 datasets:
@@ -18,15 +18,15 @@ datasets:
     text_processor:
         eval:
           name: "blip_question"
-    # build_info:
-    #     images:
-    #         storage: '/export/share/datasets/vision/coco/images/'
+    build_info:
+        images:
+            storage: "/export/share/datasets/vision/GQA/images/"
 
 run:
   task: gqa
   # optimization-specific
   batch_size_train: 16
-  batch_size_eval: 32
+  batch_size_eval: 64
   num_workers: 4
 
   # inference-specific
@@ -34,11 +34,10 @@ run:
   min_len: 1
   num_beams: 5
   inference_method: "generate"
-  # their's has "Short Answer:" paper states "Answer", using paper for now
-  prompt: "Question: {} Answer:"
+  prompt: "Question: {} Short answer:"
 
   seed: 42
-  output_dir: "output/GQA/opt/"
+  output_dir: "output/BLIP2/GQA"
 
   evaluate: True
   test_splits: ["val"]
