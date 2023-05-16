@@ -41,7 +41,10 @@ The original BLIP-2 paper[^5] outlines 3 such datasets, which we also use for re
 
 ## Reproduction
 The reproduction goal of our research focuses on a specific part of the results presented in the BLIP-2 paper. The original paper evaluates the performance of the BLIP-2 model on a variety of tasks such as visual question answering, image captioning and image-text retrieval. Since we aim in this research to enhance the in-context learning capabilities of BLIP-2 by combining its' strenghts with those of the GPT3 LLM we are interested in the performance of models on the VQA task. The achieved results on this task of various models on the datasets mentioned in the previous section are presented in table 2 of the original paper and can be seen below.
-![](/images/reproduction_table.png)
+
+<p align="center">
+  <img src="./images/reproduction_table.png">
+</p>
 
 The red boxes indicate the results that we attempted to reproduce in our work. We focus on the bottom section of the table since only the BLIP-2 model itself is within the scope of this research. For the frozen vision transformer, we only utilize the ViT-g (ref) model for reproduction since the ViT-L (ref) model was not available to us. As for the frozen large language models, we include both the OPT (ref) as well as the FlanT5 (ref) model in our reproduction study. We test for both models only their smaller variants, namely the 2.7B and XL versions for OPT and FlanT5 respectively, since our compute resources limit us to not use their larger counterparts (6.7B and XXL variants).
 
@@ -51,7 +54,7 @@ Our reproduction results are presented in the table below. Based on the results 
 | --- | --- | --- | --- |
 | BLIP-2 ViT<sub>g</sub> OPT<sub>2.7B</sub> | 53.4 | 31.8 | 34.6 |
 | BLIP-2 ViT<sub>g</sub> FlanT5<sub>XL</sub> | 61.8 | 39.3| |
-
+  
 The LAVIS library by Salesforce [^17] provides an out-of-the-box approach to evaluating BLIP-2 with various different frozen Language Models. Through a single python file, evaluate.py, an end-user can easily configure which model that he wants to evaluate. The variety of LMs all come with their respective configuration file. Moreover, it supplies python scripts for downloading the different datasets that can be used with BLIP.  
 
 Nevertheless, the reproduction of BLIP-2 posed a few issues. First of all, the authors mention in the paper that their prompt template differs for OPT and FlanT5. The prompt for OPT is supposedly 'Question: {}. Answer:', while FlanT5's prompt should be 'Question: {}. Short answer:'. However, we found in the LAVIS repository - maintained by the authors of BLIP2 - that the prompt is identical for both models, namely 'Question: {}. Short answer'. Furthermore, the method of retrieval for the FlanT5 model in the library ensures that it can only be used with the datatype bfloat16 (Brain Floating Point) [^18]. The bfloat16 dtype has been introduced by the Google Brain team to achieve higher performance with less memory requirements than a standard float32. Modern-day GPUs have the capability of performing matrix multiplications with the bfloat16; however, older GPUs do not always possess this ability. The GPU provided by our cluster was not able to execute the evaluation script with bfloat16. Therefore, we had to add and register the FlanT5 model with 8-bit integer weights in a separate file. Fortunately, LAVIS supplies the user with the effortless extensibility of registering new models by adding a single line.
@@ -62,16 +65,21 @@ The reproduction of BLIP-2 with the OPT model presented another difficulty. Init
 
 The performance of BLIP-2 in visual question answering is subject to limitations due to inaccurate knowledge from the Large Language Model. As a result, despite correctly obtaining the visual information, BLIP-2 may generate incorrect inferences and ultimately produce unsatisfactory answers. For instance, BLIP-2 might be able to effectively recognize the object depicted in an image, but its' reasoning process may fail to correctly answer a related question. An example of this can be seen in the figure below, where BLIP-2's line of reasoning falls short since it does not consider weather circumstances of the location mentioned.
 
-![](/images/blip_reasoning_example.jpeg)
+<p align="center">
+  <img src="./images/blip_reasoning_example.jpeg">
+</p>
 
 In this research project we aim at tackling this main bottleneck of the BLIP-2 model by combining BLIP-2's advanced visual question answering capabilities with the general real-world knowledge of GPT-3.  The extension is primarily focused on augmenting the performance of the model on the OK-VQA dataset, which is specifically designed to necessitate external knowledge to answer the posed questions. We will utillize the GPT-3 model by feeding it extra visual information extracted from BLIP-2 to verify and potentially enhanche the original responses provided by the BLIP-2 model to the OK-VQA instances.
 
 We do so by leveraging the GPT-3 API in two distinct ways. First, we request GPT-3 to generate a specified number of unique visual questions that need to be answered to verify or rectify the original response of the BLIP-2 model to a given OK-VQA question. These GPT-3 generated questions are then stripped from their enumeration characters and appended to a list, which is subsequently provided as input to the BLIP-2 model. In turn, BLIP-2 attempts to answer these questions, thereby potentially extracting more visual information from the OK-VQA image. Finally, we combine the questions generated by GPT-3, the response of BLIP-2 to these questions, the original OK-VQA question, and the original response of BLIP-2 and input them into the GPT-3 API to validate the original response of the BLIP-2 model. The GPT-3 model leverages its comprehensive world knowledge and the extracted visual information to determine if the response provided by BLIP-2 is a valid answer to the original OK-VQA question. The output of the GPT-3 model contains the verified or corrected response to the OK-VQA question, which serves as the final answer used to evaluate the effectiveness of our proposed pipeline.
 
-![](/images/BLIP23_pipeline.png)
-RESULTS AND ANALYSIS
+<p align="center">
+  <img src="./images/BLIP23_pipeline.png">
+</p>
 
-CONCLUSION
+## Results and Analysis
+
+## Conclusion
 
 ## References
 [^1]: Brown, T. B., Mann, B., Ryder, N., Subbiah, M., Kaplan, J., Dhariwal, P., Amodei, D. (2020). Language models are few-shot learners.
