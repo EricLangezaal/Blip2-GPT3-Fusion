@@ -68,7 +68,7 @@ Our reproduction results are presented in the table below. Based on the results 
          <td>BLIP-2 ViT<sub>g</sub> FlanT5<sub>XL</sub></td>
          <td>61.8</td>
          <td>39.3</td>
-         <td></td>
+         <td>43.9</td>
       </tr>
    </tbody>
 </table>
