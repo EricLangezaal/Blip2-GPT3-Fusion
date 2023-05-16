@@ -2,12 +2,12 @@
 
 #SBATCH --partition=gpu_titanrtx_shared_course
 #SBATCH --gres=gpu:1
-#SBATCH --job-name=EvalBlip
+#SBATCH --job-name=NbBlip
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=3
-#SBATCH --time=02:00:00
+#SBATCH --time=10:00:00
 #SBATCH --mem=64000M
-#SBATCH --output=eval_%A.out
+#SBATCH --output=delete_me_%A.out
 
 module purge
 module load 2021
@@ -17,5 +17,4 @@ module load Anaconda3/2021.05
 # Activate your environment
 source activate dl2
 # Run your code
-# python -m torch.distributed.run --nproc_per_node=2 evaluate.py --cfg-path settings/okvqa_flan5xl.yaml
-python -m torch.distributed.run --nproc_per_node=1 evaluate.py --cfg-path settings/okvqaflant5xlgpt3.yaml
+jupyter nbconvert --to notebook --execute Chat_with_BLIP_2.ipynb --output=out_Chat_with_BLIP_2.ipynb --ExecutePreprocessor.timeout=-1

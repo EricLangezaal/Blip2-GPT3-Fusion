@@ -316,7 +316,7 @@ class Blip2T5gtp3int8(Blip2Base):
         
         #################### ADDED PART  ########################################
         # GENERATION OF OBJECT DESCRIPTION
-        openai_api_key = "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"
+        openai_api_key = "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"
         openai.api_key = openai_api_key
 
         gpt_questions = gpt_generate_questions(text_input)
@@ -337,9 +337,11 @@ class Blip2T5gtp3int8(Blip2Base):
                 do_sample=False,
                 num_beams=num_beams,
                 # TODO: OPTIMISE SETTINGS FOR PHOTO DESCRIPTION!
-                max_new_tokens=20,
-                min_length=5,
-                length_penalty=2,
+                max_new_tokens=15,
+                min_length=1,
+                repetition_penalty = 1.5,
+                # -1 (default) gives 1 word answers, '2' gives sentences
+                length_penalty=1,
             )
             answer_to_gpt_question = self.t5_tokenizer.batch_decode(
                 answer_to_gpt_embed, skip_special_tokens=True
