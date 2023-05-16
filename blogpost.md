@@ -37,8 +37,6 @@ The original BLIP-2 paper[^5] outlines 3 such datasets, which we also use for re
 | ------- | ------- | --- |
 | ![](/images/vqav2-example.png)  | ![](/images/ok-vqa1.png)  |  ![](/images/gqa-example.png)  |
 
-
-
 ## Reproduction
 The reproduction goal of our research focuses on a specific part of the results presented in the BLIP-2 paper. The original paper evaluates the performance of the BLIP-2 model on a variety of tasks such as visual question answering, image captioning and image-text retrieval. Since we aim in this research to enhance the in-context learning capabilities of BLIP-2 by combining its' strenghts with those of the GPT3 LLM we are interested in the performance of models on the VQA task. The achieved results on this task of various models on the datasets mentioned in the previous section are presented in table 2 of the original paper and can be seen below.
 
@@ -50,10 +48,30 @@ The red boxes indicate the results that we attempted to reproduce in our work. W
 
 Our reproduction results are presented in the table below. Based on the results in the table, we can state that the accuracies of the OPT and FlanT5 BLIP-2 model variants on the VQA task are succesfully reproducable.
 
-| Models | VQAv2 (val) | OK-VQA | GQA |
-| --- | --- | --- | --- |
-| BLIP-2 ViT<sub>g</sub> OPT<sub>2.7B</sub> | 53.4 | 31.8 | 34.6 |
-| BLIP-2 ViT<sub>g</sub> FlanT5<sub>XL</sub> | 61.8 | 39.3| |
+<table align="center">
+   <thead>
+      <tr>
+         <th>Models</th>
+         <th>VQAv2 (val)</th>
+         <th>OK-VQA</th>
+         <th>GQA</th>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td>BLIP-2 ViT<sub>g</sub> OPT<sub>2.7B</sub></td>
+         <td>53.4</td>
+         <td>31.8</td>
+         <td>34.6</td>
+      </tr>
+      <tr>
+         <td>BLIP-2 ViT<sub>g</sub> FlanT5<sub>XL</sub></td>
+         <td>61.8</td>
+         <td>39.3</td>
+         <td></td>
+      </tr>
+   </tbody>
+</table>
   
 The LAVIS library by Salesforce [^17] provides an out-of-the-box approach to evaluating BLIP-2 with various different frozen Language Models. Through a single python file, evaluate.py, an end-user can easily configure which model that he wants to evaluate. The variety of LMs all come with their respective configuration file. Moreover, it supplies python scripts for downloading the different datasets that can be used with BLIP.  
 
