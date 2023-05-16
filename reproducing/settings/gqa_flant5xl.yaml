@@ -4,7 +4,7 @@
  # For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
 
 model:
-  arch: blip2_t5
+  arch: blip2_t5_int8
   model_type: pretrain_flant5xl
   use_grad_checkpoint: False
 
@@ -26,7 +26,7 @@ run:
   task: gqa
   # optimization-specific
   batch_size_train: 16
-  batch_size_eval: 64
+  batch_size_eval: 32
   num_workers: 4
 
   # inference-specific
