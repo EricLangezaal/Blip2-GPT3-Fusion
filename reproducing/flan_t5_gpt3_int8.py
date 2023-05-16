@@ -324,7 +324,7 @@ class Blip2T5gtp3int8(Blip2Base):
         listed_answers = []
         for batch in list(zip(*gpt_questions)):
             description_tokens = self.t5_tokenizer(
-                list(batch), padding="longest", return_tensors="pt").to(image.device)
+                prompt_question(list(batch)), padding="longest", return_tensors="pt").to(image.device)
             encoder_atts_new = torch.cat([atts_t5, description_tokens.attention_mask], dim=1)
 
             description_embeds = self.t5_model.encoder.embed_tokens(description_tokens.input_ids)
