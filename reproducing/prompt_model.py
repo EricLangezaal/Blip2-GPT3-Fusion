@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from collections import defaultdict
 
 import torch
 from PIL import Image
@@ -15,8 +16,7 @@ if __name__ == '__main__':
     registry.mapping['paths']['cache_root'] = Path.cwd() / 'export'
 
     dataset = load_dataset(name='ok_vqa', cfg_path=None)['test']
-
-    sample = dataset.annotation[0]
+    annotations = dataset.annotation[0:4]
 
     model, img_processor_dict, text_processor_dict = load_model_and_preprocess(
         name='blip2_t5_gpt3_caption', 
@@ -27,18 +27,30 @@ if __name__ == '__main__':
     img_processor = img_processor_dict['eval']
     text_processor = text_processor_dict['eval']
     
-    # TODO: Dit moet handiger kunnen maar hun gare voorbeeld waarbij de dataset
-    # images instantieert in de dataset ipv paden naar images klopt niet?
-    img_path = f'{dataset.vis_root}{sample["image"]}'
-    sample['image'] = img_processor(
-        Image.open(f'{img_path}').convert('RGB')
-    ).unsqueeze(0).to(device)
-    sample['text_input'] = text_processor(
-        sample['question']
-    )
+    samples = {
+        'image': None,
+        'text_input': [],
+        'prompt': ''
+    }
+
+    for annotation in annotations:
+        img_path = f'{dataset.vis_root}{annotation["image"]}'
+        image = img_processor(
+            Image.open(f'{img_path}').convert('RGB')
+        ).unsqueeze(0).to(device)
+        text_input = text_processor(
+            annotation['question']
+        )
+
+        if samples['image'] is None:
+            samples['image'] = image
+        else:
+            samples['image'] = torch.cat((samples['image'], image))
+        
+        samples['text_input'].append(text_input)
 
     result = model.predict_answers(
-        samples=sample,
+        samples=samples,
         inference_method='generate',
         num_beams=5,
         max_len=10,
@@ -48,7 +60,6 @@ if __name__ == '__main__':
 
     print(
 f'''
-Question: {sample['text_input']}
+Question: {samples['text_input']}
 Answer: {result}
-Image: {img_path}
 ''')
