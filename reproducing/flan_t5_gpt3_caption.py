@@ -10,21 +10,16 @@ import torch
 import torch.nn as nn
 from torch.cuda.amp import autocast as autocast
 from transformers import T5TokenizerFast
-import time
 
 from lavis.common.registry import registry
 from lavis.models.blip2_models.blip2 import Blip2Base, disabled_train
 from lavis.models.blip2_models.modeling_t5 import T5Config, T5ForConditionalGeneration
 
-import openai
-from openai.error import RateLimitError
 
-from gpt_utils import *
-
-@registry.register_model("blip2_t5_gpt3_int8")
-class Blip2T5gtp3int8(Blip2Base):
+@registry.register_model("blip2_t5_gpt3_caption")
+class FlanGPTCaption(Blip2Base):
     """
-    BLIP2 T5 GPT3 int8 model.
+    BLIP2 T5 int8 model.
     Supported model types:
         - pretrain_flant5xl: pretrained model with FlanT5-XL
         - pretrain_flant5xl_vitL: pretrained model with FlanT5-XL
@@ -246,7 +241,6 @@ class Blip2T5gtp3int8(Blip2Base):
 
         return output_text
 
-
     def predict_answers(
         self,
         samples,
@@ -260,131 +254,58 @@ class Blip2T5gtp3int8(Blip2Base):
         length_penalty=-1,
         **kwargs
     ):
-        try:
-            image = samples["image"]
-            with self.maybe_autocast():
-                image_embeds = self.ln_vision(self.visual_encoder(image))
-            image_embeds = image_embeds.float()
-            image_atts = torch.ones(image_embeds.size()[:-1], dtype=torch.long).to(
-                image.device
-            )
+        image = samples["image"]
+        with self.maybe_autocast():
+            image_embeds = self.ln_vision(self.visual_encoder(image))
+        image_embeds = image_embeds.float()
+        image_atts = torch.ones(image_embeds.size()[:-1], dtype=torch.long).to(
+            image.device
+        )
 
-            query_tokens = self.query_tokens.expand(image_embeds.shape[0], -1, -1)
-            query_output = self.Qformer.bert(
-                query_embeds=query_tokens,
-                encoder_hidden_states=image_embeds,
-                encoder_attention_mask=image_atts,
-                return_dict=True,
-            )
+        query_tokens = self.query_tokens.expand(image_embeds.shape[0], -1, -1)
+        query_output = self.Qformer.bert(
+            query_embeds=query_tokens,
+            encoder_hidden_states=image_embeds,
+            encoder_attention_mask=image_atts,
+            return_dict=True,
+        )
 
-            inputs_t5 = self.t5_proj(query_output.last_hidden_state)
-            atts_t5 = torch.ones(inputs_t5.size()[:-1], dtype=torch.long).to(image.device)
+        inputs_t5 = self.t5_proj(query_output.last_hidden_state)
+        atts_t5 = torch.ones(inputs_t5.size()[:-1], dtype=torch.long).to(image.device)
 
-            if isinstance(samples["text_input"], str):
-                samples["text_input"] = [samples["text_input"]]
-            if prompt:
-                text_input = [prompt.format(question) for question in samples["text_input"]]
-            else:
-                text_input = samples["text_input"]
+        if isinstance(samples["text_input"], str):
+            samples["text_input"] = [samples["text_input"]]
+        if prompt:
+            text_input = [prompt.format(question) for question in samples["text_input"]]
+        else:
+            text_input = samples["text_input"]
 
-            prompted_text_input = prompt_question(text_input)
+        input_tokens = self.t5_tokenizer(
+            text_input, padding="longest", return_tensors="pt"
+        ).to(image.device)
 
-            input_tokens = self.t5_tokenizer(
-                prompted_text_input, padding="longest", return_tensors="pt"
-            ).to(image.device)
-            
+        encoder_atts = torch.cat([atts_t5, input_tokens.attention_mask], dim=1)
 
-            # GENERATION OF REGULAR ANSWER
-            encoder_atts = torch.cat([atts_t5, input_tokens.attention_mask], dim=1)
+        inputs_embeds = self.t5_model.encoder.embed_tokens(input_tokens.input_ids)
+        inputs_embeds = torch.cat([inputs_t5, inputs_embeds], dim=1)
 
-            inputs_embeds = self.t5_model.encoder.embed_tokens(input_tokens.input_ids)
-            inputs_embeds = torch.cat([inputs_t5, inputs_embeds], dim=1)
+        outputs = self.t5_model.generate(
+            inputs_embeds=inputs_embeds,
+            attention_mask=encoder_atts,
+            do_sample=False,
+            num_beams=num_beams,
+            max_new_tokens=max_len,
+            min_length=min_len,
+            length_penalty=length_penalty,
+        )
+        output_text = self.t5_tokenizer.batch_decode(
+            outputs, skip_special_tokens=True
+        )
 
-            outputs = self.t5_model.generate(
-                inputs_embeds=inputs_embeds,
-                attention_mask=encoder_atts,
-                do_sample=False,
-                num_beams=num_beams,
-                max_new_tokens=max_len,
-                min_length=min_len,
-                length_penalty=length_penalty,
-            )
-            output_text = self.t5_tokenizer.batch_decode(
-                outputs, skip_special_tokens=True
-            )
+        if self._apply_lemmatizer:
+            output_text = self._lemmatize(output_text)
 
-            if self._apply_lemmatizer:
-                output_text = self._lemmatize(output_text)
-            
-            #################### ADDED PART  ########################################
-            # GENERATION OF OBJECT DESCRIPTION
-            openai_api_key = "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"
-            openai.api_key = openai_api_key
-
-            gpt_questions = gpt_generate_questions(text_input)
-
-            listed_answers = []
-            for batch in list(zip(*gpt_questions)):
-                description_tokens = self.t5_tokenizer(
-                    prompt_question(list(batch)), padding="longest", return_tensors="pt").to(image.device)
-                encoder_atts_new = torch.cat([atts_t5, description_tokens.attention_mask], dim=1)
-
-                description_embeds = self.t5_model.encoder.embed_tokens(description_tokens.input_ids)
-                description_embeds = torch.cat([inputs_t5, description_embeds], dim=1)
-                
-
-                answer_to_gpt_embed = self.t5_model.generate(
-                    inputs_embeds=description_embeds,
-                    attention_mask=encoder_atts_new,
-                    do_sample=False,
-                    num_beams=num_beams,
-                    # TODO: OPTIMISE SETTINGS FOR PHOTO DESCRIPTION!
-                    max_new_tokens=15,
-                    min_length=1,
-                    repetition_penalty = 1.5,
-                    # -1 (default) gives 1 word answers, '2' gives sentences
-                    length_penalty=1,
-                )
-                answer_to_gpt_question = self.t5_tokenizer.batch_decode(
-                    answer_to_gpt_embed, skip_special_tokens=True
-                )
-
-                listed_answers.append(answer_to_gpt_question)
-            
-            listed_answers = list(zip(*listed_answers))
-
-            gpt_summarised_batch = []
-            for questions, answers, org_question, org_answer in zip(gpt_questions, listed_answers, text_input, output_text):
-                gpt_summarised_batch.append(summarized_gpt(questions, answers, org_question, org_answer))
-
-            if self._apply_lemmatizer:
-                gpt_summarised_batch = self._lemmatize(gpt_summarised_batch)
-            
-
-            print('new batch')
-            for gpt_summarized, questions, answers, org_question, org_answer in zip(gpt_summarised_batch, gpt_questions, listed_answers, text_input, output_text):
-                print("Original question: ", org_question)
-                print("Original answer: ", org_answer)
-                print("GPT generated questions:", questions)
-                print("THe answers to those GPT questions:", answers)
-                print("FINAL answer: ", gpt_summarized, "\n")        
-            ################ ADDED PART ######################
-            return gpt_summarised_batch
-        except RateLimitError:
-            time.sleep(5)
-            return self.predict_answers(
-                samples,
-                num_beams,
-                inference_method,
-                max_len,
-                min_len,
-                num_ans_candidates,
-                answer_list,
-                prompt,
-                length_penalty,
-                **kwargs
-            )
-
+        return output_text
 
     def _lemmatize(self, answers):
         def apply(answer):
