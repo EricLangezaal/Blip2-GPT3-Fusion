@@ -63,7 +63,7 @@ def summarized_gpt(questions, answers, original_question, original_answer, tempe
     else:
       return response["choices"][0]['message']["content"].strip()
 
-def context_gpt(all_info, original_question, original_answer, temperature=0.2):
+def context_gpt(all_info, original_question, temperature=0.2):
     """
     Helper function for prompting the GPT3 chat-based language model
     """
@@ -72,7 +72,7 @@ def context_gpt(all_info, original_question, original_answer, temperature=0.2):
         #{"role": "user", "content": f"The main question is '{original_question}'. The original answer from the visual question answering model was '{original_answer}'"}
         ]
     
-    context = " ".join(all_info)
+    context = "\n".join(all_info)
        #context = ""
        #messages.append({"role": "user", "content": f"We asked: {question}"})
     messages.append({"role": "user", "content": f"Question: {original_question}. Context: {context}"})
