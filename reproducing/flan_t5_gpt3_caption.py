@@ -266,26 +266,28 @@ class FlanGPTCaption(Blip2Base):
             openai_api_key = "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"
             openai.api_key = openai_api_key
             paper_prompt = "a photo of"
-            #extra_prompt1 = "The action happening in this picture is"
+            extra_prompt1 = "The action happening in this picture is"
             #extra_prompt2 = "In this picture, I see"
-            #extra_prompt3 = "The location of this picture is"
-            #extra_prompt4 = "The people in this picture are" 
-            #extra_prompt6 = "The background of this picture shows"
+            extra_prompt3 = "The location of this picture is"
+            extra_prompt4 = "The people in this picture are" 
+            extra_prompt6 = "The background of this picture shows"
             #extra_prompt7 = "the story of this picture is"
-            #extra_prompt8 = "The activity related to the picture is"
+            extra_prompt8 = "The activity related to the picture is"
             
-            extra_prompt5 = "Describe the plant in the picture"
-            extra_prompt9 = "The plant in the picture"
-            extra_prompt10 = "The type of plant in the picture"
-            extra_prompt11 = "The purpose of the plant in the picture"
-            extra_prompt12 = "the size of the plant in the picture is"
+
+            #extra_prompt5 = "Describe the plant in the picture"
+            #extra_prompt9 = "The plant in the picture"
+            #extra_prompt10 = "The type of plant in the picture"
+            #extra_prompt11 = "The purpose of the plant in the picture"
+            #extra_prompt12 = "the size of the plant in the picture is"
             
             nouns = questionlemmatize(samples['text_input'])
             #print(samples['text_input'])
-            print(nouns)
-            #prompts = [paper_prompt, extra_prompt1, extra_prompt2, extra_prompt3, extra_prompt4, extra_prompt5, extra_prompt6, extra_prompt7, extra_prompt8, extra_prompt9]
+            #print(nouns)
+            prompts = [paper_prompt, extra_prompt1, extra_prompt3, extra_prompt4, extra_prompt6, extra_prompt8]
             #prompts = [[extra_prompt1]] * len(samples['text_input'])
-            prompts = [extra_prompt5, extra_prompt9, extra_prompt10, extra_prompt11, extra_prompt12]
+            #prompts = [extra_prompt5, extra_prompt9, extra_prompt10, extra_prompt11, extra_prompt12]
+            
             for prompt in prompts: 
                 samples['prompt'] = prompt
                 #gpt_questions = gpt_generate_questions(text_input)
@@ -304,7 +306,8 @@ class FlanGPTCaption(Blip2Base):
                         length_penalty=2.0,
                         num_captions=1, 
                         )
-                print(answer_to_gpt_embed)
+                context = [f"{prompt} {answer}" for answer in answer_to_gpt_embed]
+                print(context)
             """
             gpt_summarised_batch = []
             for questions, answers, org_question, org_answer in zip(prompts, listed_answers, text_input, output_text):
@@ -429,4 +432,4 @@ def questionlemmatize(questions):
 
         return nouns
     
-    # return [apply(question) for question in questions]
+    return [apply(question) for question in questions]
