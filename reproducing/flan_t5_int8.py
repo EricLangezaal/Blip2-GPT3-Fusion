@@ -12,30 +12,13 @@ from torch.cuda.amp import autocast as autocast
 from transformers import T5TokenizerFast
 
 from lavis.common.registry import registry
+from lavis.models.blip2_models.blip2_t5 import Blip2T5
 from lavis.models.blip2_models.blip2 import Blip2Base, disabled_train
 from lavis.models.blip2_models.modeling_t5 import T5Config, T5ForConditionalGeneration
 
 
 @registry.register_model("blip2_t5_int8")
-class Blip2T5int8(Blip2Base):
-    """
-    BLIP2 T5 int8 model.
-    Supported model types:
-        - pretrain_flant5xl: pretrained model with FlanT5-XL
-        - pretrain_flant5xl_vitL: pretrained model with FlanT5-XL
-        - pretrain_flant5xxl: pretrained model with FlanT5-XXL
-        - caption_coco_flant5xl: fintuned image captioning model with FlanT5-XL
-    Usage:
-        >>> from lavis.models import load_model
-        >>> model = load_model("blip2_t5", "pretrain_flant5xl")
-    """
-
-    PRETRAINED_MODEL_CONFIG_DICT = {
-        "pretrain_flant5xl": "configs/models/blip2/blip2_pretrain_flant5xl.yaml",
-        "pretrain_flant5xl_vitL": "configs/models/blip2/blip2_pretrain_flant5xl_vitL.yaml",
-        "pretrain_flant5xxl": "configs/models/blip2/blip2_pretrain_flant5xxl.yaml",
-        "caption_coco_flant5xl": "configs/models/blip2/blip2_caption_flant5xl.yaml",
-    }
+class Blip2T5int8(Blip2T5):
 
     def __init__(
         self,
@@ -54,7 +37,7 @@ class Blip2T5int8(Blip2Base):
         """
         apply_lemmatizer: when set to True, postprocess predict_answers() result with lemmas.
         """
-        super().__init__()
+        Blip2Base.__init__(self)
 
         self.tokenizer = self.init_tokenizer()
 
@@ -306,74 +289,3 @@ class Blip2T5int8(Blip2Base):
             output_text = self._lemmatize(output_text)
 
         return output_text
-
-    def _lemmatize(self, answers):
-        def apply(answer):
-            doc = self.lemmatizer(answer)
-
-            words = []
-            for token in doc:
-                if token.pos_ in ["NOUN", "VERB"]:
-                    words.append(token.lemma_)
-                else:
-                    words.append(token.text)
-            answer = " ".join(words)
-
-            return answer
-
-        return [apply(answer) for answer in answers]
-
-    @property
-    def lemmatizer(self):
-        if self._lemmatizer is None:
-            try:
-                import spacy
-
-                self._lemmatizer = spacy.load("en_core_web_sm")
-            except ImportError:
-                logging.error(
-                    """
-                    Please install spacy and en_core_web_sm model to apply lemmatization.
-                    python -m spacy download en_core_web_sm
-                    OR
-                    import spacy.cli
-                    spacy.cli.download("en_core_web_sm")
-                    """
-                )
-                exit(1)
-
-        return self._lemmatizer
-
-    @classmethod
-    def from_config(cls, cfg):
-        vit_model = cfg.get("vit_model", "eva_clip_g")
-        img_size = cfg.get("image_size")
-        num_query_token = cfg.get("num_query_token")
-        t5_model = cfg.get("t5_model")
-
-        drop_path_rate = cfg.get("drop_path_rate", 0)
-        use_grad_checkpoint = cfg.get("use_grad_checkpoint", False)
-        vit_precision = cfg.get("vit_precision", "fp16")
-        freeze_vit = cfg.get("freeze_vit", True)
-
-        prompt = cfg.get("prompt", "")
-        max_txt_len = cfg.get("max_txt_len", 32)
-
-        apply_lemmatizer = cfg.get("apply_lemmatizer", False)
-
-        model = cls(
-            vit_model=vit_model,
-            img_size=img_size,
-            drop_path_rate=drop_path_rate,
-            use_grad_checkpoint=use_grad_checkpoint,
-            vit_precision=vit_precision,
-            freeze_vit=freeze_vit,
-            num_query_token=num_query_token,
-            t5_model=t5_model,
-            prompt=prompt,
-            max_txt_len=max_txt_len,
-            apply_lemmatizer=apply_lemmatizer,
-        )
-        model.load_checkpoint_from_config(cfg)
-
-        return model

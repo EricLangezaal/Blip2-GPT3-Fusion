@@ -19,144 +19,22 @@ import openai
 from openai.error import RateLimitError, APIError
 
 from gpt_utils import *
+from flan_t5_gpt3_int8 import Blip2T5int8
 import time
 
 @registry.register_model("blip2_t5_gpt3_caption")
-class FlanGPTCaption(Blip2Base):
-    """
-    BLIP2 T5 int8 model.
-    Supported model types:
-        - pretrain_flant5xl: pretrained model with FlanT5-XL
-        - pretrain_flant5xl_vitL: pretrained model with FlanT5-XL
-        - pretrain_flant5xxl: pretrained model with FlanT5-XXL
-        - caption_coco_flant5xl: fintuned image captioning model with FlanT5-XL
-    Usage:
-        >>> from lavis.models import load_model
-        >>> model = load_model("blip2_t5", "pretrain_flant5xl")
-    """
-
-    PRETRAINED_MODEL_CONFIG_DICT = {
-        "pretrain_flant5xl": "configs/models/blip2/blip2_pretrain_flant5xl.yaml",
-        "pretrain_flant5xl_vitL": "configs/models/blip2/blip2_pretrain_flant5xl_vitL.yaml",
-        "pretrain_flant5xxl": "configs/models/blip2/blip2_pretrain_flant5xxl.yaml",
-        "caption_coco_flant5xl": "configs/models/blip2/blip2_caption_flant5xl.yaml",
-    }
+class FlanGPTCaption(Blip2T5int8):
 
     def __init__(
         self,
-        vit_model="eva_clip_g",
-        img_size=224,
-        drop_path_rate=0,
-        use_grad_checkpoint=False,
-        vit_precision="fp16",
-        freeze_vit=True,
-        num_query_token=32,
-        t5_model="google/flan-t5-xl",
-        prompt="",
-        max_txt_len=32,
-        apply_lemmatizer=False,
+        openai_api_key="",
+        verbose=False,
+        **args
     ):
-        """
-        apply_lemmatizer: when set to True, postprocess predict_answers() result with lemmas.
-        """
-        super().__init__()
+        super().__init__(**args)
 
-        self.tokenizer = self.init_tokenizer()
-
-        self.visual_encoder, self.ln_vision = self.init_vision_encoder(
-            vit_model, img_size, drop_path_rate, use_grad_checkpoint, vit_precision
-        )
-        if freeze_vit:
-            for name, param in self.visual_encoder.named_parameters():
-                param.requires_grad = False
-            self.visual_encoder = self.visual_encoder.eval()
-            self.visual_encoder.train = disabled_train
-            logging.info("freeze vision encoder")
-
-        self.Qformer, self.query_tokens = self.init_Qformer(
-            num_query_token, self.visual_encoder.num_features
-        )
-        self.Qformer.cls = None
-        self.Qformer.bert.embeddings.word_embeddings = None
-        self.Qformer.bert.embeddings.position_embeddings = None
-        for layer in self.Qformer.bert.encoder.layer:
-            layer.output = None
-            layer.intermediate = None
-
-        self.t5_tokenizer = T5TokenizerFast.from_pretrained(t5_model)
-        t5_config = T5Config.from_pretrained(t5_model)
-        t5_config.dense_act_fn = "gelu"
-        self.t5_model = T5ForConditionalGeneration.from_pretrained(
-            t5_model, config=t5_config, device_map='auto', load_in_8bit=True
-        )
-
-        for name, param in self.t5_model.named_parameters():
-            param.requires_grad = False
-
-        self.t5_proj = nn.Linear(
-            self.Qformer.config.hidden_size, self.t5_model.config.hidden_size
-        )
-
-        self.max_txt_len = max_txt_len
-        self.prompt = prompt
-
-        self._apply_lemmatizer = apply_lemmatizer
-        self._lemmatizer = None
-
-    def forward(self, samples):
-        image = samples["image"]
-
-        with self.maybe_autocast():
-            image_embeds = self.ln_vision(self.visual_encoder(image))
-        image_atts = torch.ones(image_embeds.size()[:-1], dtype=torch.long).to(
-            image.device
-        )
-
-        query_tokens = self.query_tokens.expand(image_embeds.shape[0], -1, -1)
-        query_output = self.Qformer.bert(
-            query_embeds=query_tokens,
-            encoder_hidden_states=image_embeds,
-            encoder_attention_mask=image_atts,
-            return_dict=True,
-        )
-
-        inputs_t5 = self.t5_proj(query_output.last_hidden_state)
-        atts_t5 = torch.ones(inputs_t5.size()[:-1], dtype=torch.long).to(image.device)
-
-        input_tokens = self.t5_tokenizer(
-            samples["text_input"],
-            padding="longest",
-            truncation=True,
-            max_length=self.max_txt_len,
-            return_tensors="pt",
-        ).to(image.device)
-        output_tokens = self.t5_tokenizer(
-            samples["text_output"],
-            padding="longest",
-            truncation=True,
-            max_length=self.max_txt_len,
-            return_tensors="pt",
-        ).to(image.device)
-
-        encoder_atts = torch.cat([atts_t5, input_tokens.attention_mask], dim=1)
-
-        targets = output_tokens.input_ids.masked_fill(
-            output_tokens.input_ids == self.t5_tokenizer.pad_token_id, -100
-        )
-
-        inputs_embeds = self.t5_model.encoder.embed_tokens(input_tokens.input_ids)
-        inputs_embeds = torch.cat([inputs_t5, inputs_embeds], dim=1)
-
-        outputs = self.t5_model(
-            inputs_embeds=inputs_embeds,
-            attention_mask=encoder_atts,
-            decoder_attention_mask=output_tokens.attention_mask,
-            return_dict=True,
-            labels=targets,
-        )
-        loss = outputs.loss
-
-        return {"loss": loss}
+        openai.api_key = openai_api_key
+        self.verbose = verbose
 
     @torch.no_grad()
     def generate(
@@ -322,11 +200,6 @@ class FlanGPTCaption(Blip2Base):
 
             #################### ADDED PART  ########################################
             # GENERATION OF OBJECT DESCRIPTION
-            
-            # TODO: add key to sys env
-            openai_api_key = "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"
-            openai.api_key = openai_api_key
-
             # TODO: no prompt (starts from BOS) or other prompt or more prompts?
             paper_prompt = "a photo of"
             ##extra_prompt1 = "The action happening in this picture is"
@@ -375,19 +248,20 @@ class FlanGPTCaption(Blip2Base):
             if self._apply_lemmatizer:
                 gpt_answers_batch = self._lemmatize(gpt_answers_batch)
 
-            print('---------------------New batch---------------------')
-            for context, org_question, gpt_answer, original_answer in zip(contexts, samples['text_input'], gpt_answers_batch, output_text):
-               print('Original question: ', org_question)
-               print('Blip answer', original_answer)
-               print('GPT answer: ', gpt_answer)
-               print('\n ')
-               print('context for gpt', context)
-               print('-----------------------------------')
+            if self.verbose:
+                print('---------------------New batch---------------------')
+                for context, org_question, gpt_answer, original_answer in zip(contexts, samples['text_input'], gpt_answers_batch, output_text):
+                    print('Original question: ', org_question)
+                    print('Blip answer', original_answer)
+                    print('GPT answer: ', gpt_answer)
+                    print('\n ')
+                    print('context for gpt', context)
+                    print('-----------------------------------')
             
 
             ################ ADDED PART ######################
-
             return gpt_answers_batch
+        
         except (RateLimitError, APIError):
             time.sleep(5)
             return self.predict_answers(
@@ -402,46 +276,6 @@ class FlanGPTCaption(Blip2Base):
                 length_penalty,
                 **kwargs
             )
-       
-
-    def _lemmatize(self, answers):
-        def apply(answer):
-            doc = self.lemmatizer(answer)
-
-            words = []
-            for token in doc:
-                if token.pos_ in ["NOUN", "VERB"]:
-                    words.append(token.lemma_)
-                else:
-                    words.append(token.text)
-            answer = " ".join(words)
-            
-            return answer
-
-        return [apply(answer) for answer in answers]
-    
-    
-
-    @property
-    def lemmatizer(self):
-        if self._lemmatizer is None:
-            try:
-                import spacy
-
-                self._lemmatizer = spacy.load("en_core_web_sm")
-            except ImportError:
-                logging.error(
-                    """
-                    Please install spacy and en_core_web_sm model to apply lemmatization.
-                    python -m spacy download en_core_web_sm
-                    OR
-                    import spacy.cli
-                    spacy.cli.download("en_core_web_sm")
-                    """
-                )
-                exit(1)
-
-        return self._lemmatizer
 
     @classmethod
     def from_config(cls, cfg):
@@ -460,7 +294,12 @@ class FlanGPTCaption(Blip2Base):
 
         apply_lemmatizer = cfg.get("apply_lemmatizer", False)
 
+        openai_api_key = cfg.get("openai_api_key", "")
+        verbose = cfg.get("verbose", False)
+
         model = cls(
+            openai_api_key=openai_api_key,
+            verbose=verbose,
             vit_model=vit_model,
             img_size=img_size,
             drop_path_rate=drop_path_rate,

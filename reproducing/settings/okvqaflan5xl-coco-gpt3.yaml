@@ -8,6 +8,8 @@ model:
   model_type: caption_coco_flant5xl
   use_grad_checkpoint: False
 
+  openai_api_key: "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"
+  verbose: True
   # for OKVQA evaluation
   apply_lemmatizer: True
 
