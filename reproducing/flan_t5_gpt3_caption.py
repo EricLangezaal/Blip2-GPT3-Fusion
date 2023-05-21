@@ -16,7 +16,7 @@ from lavis.models.blip2_models.blip2 import Blip2Base, disabled_train
 from lavis.models.blip2_models.modeling_t5 import T5Config, T5ForConditionalGeneration
 
 import openai
-from openai.error import RateLimitError
+from openai.error import RateLimitError, APIError
 
 from gpt_utils import *
 import time
@@ -205,7 +205,9 @@ class FlanGPTCaption(Blip2Base):
 
         inputs_t5 = self.t5_proj(query_output.last_hidden_state)
         atts_t5 = torch.ones(inputs_t5.size()[:-1], dtype=torch.long).to(image.device)
-
+        prompt = samples["prompt"]
+        #print(prompt)
+        """
         if "prompt" in samples.keys():
             prompt = samples["prompt"]
             print('prompt = ', prompt)
@@ -218,7 +220,7 @@ class FlanGPTCaption(Blip2Base):
             assert len(prompt) == image.size(
                 0
             ), "The number of prompts must be equal to the batch size."
-
+        """
         input_tokens = self.t5_tokenizer(
             prompt, padding="longest", return_tensors="pt"
         ).to(image.device)
@@ -260,133 +262,135 @@ class FlanGPTCaption(Blip2Base):
         length_penalty=-1,
         **kwargs
     ):
-        try:            
+        try:  
+            # TODO: inefficient because these encodings are also in generate()
+            # but easy to break because of prompt / question difference
+            image = samples["image"]
+            with self.maybe_autocast():
+                image_embeds = self.ln_vision(self.visual_encoder(image))
+            image_embeds = image_embeds.float()
+            image_atts = torch.ones(image_embeds.size()[:-1], dtype=torch.long).to(
+                image.device
+            )
+
+            query_tokens = self.query_tokens.expand(image_embeds.shape[0], -1, -1)
+            query_output = self.Qformer.bert(
+                query_embeds=query_tokens,
+                encoder_hidden_states=image_embeds,
+                encoder_attention_mask=image_atts,
+                return_dict=True,
+            )
+
+            inputs_t5 = self.t5_proj(query_output.last_hidden_state)
+            atts_t5 = torch.ones(inputs_t5.size()[:-1], dtype=torch.long).to(image.device)
+
+            if isinstance(samples["text_input"], str):
+                samples["text_input"] = [samples["text_input"]]
+            if prompt:
+                text_input = [prompt.format(question) for question in samples["text_input"]]
+            else:
+                text_input = samples["text_input"]
+
+            prompted_text_input = prompt_question(text_input)
+
+            input_tokens = self.t5_tokenizer(
+                prompted_text_input, padding="longest", return_tensors="pt"
+            ).to(image.device)
+            
+
+            ############# GENERATION OF REGULAR ANSWER #########################
+            encoder_atts = torch.cat([atts_t5, input_tokens.attention_mask], dim=1)
+
+            inputs_embeds = self.t5_model.encoder.embed_tokens(input_tokens.input_ids)
+            inputs_embeds = torch.cat([inputs_t5, inputs_embeds], dim=1)
+
+            outputs = self.t5_model.generate(
+                inputs_embeds=inputs_embeds,
+                attention_mask=encoder_atts,
+                do_sample=False,
+                num_beams=num_beams,
+                max_new_tokens=max_len,
+                min_length=min_len,
+                length_penalty=length_penalty,
+            )
+            output_text = self.t5_tokenizer.batch_decode(
+                outputs, skip_special_tokens=True
+            )
+
+            if self._apply_lemmatizer:
+                output_text = self._lemmatize(output_text)          
 
             #################### ADDED PART  ########################################
             # GENERATION OF OBJECT DESCRIPTION
+            
+            # TODO: add key to sys env
             openai_api_key = "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"
             openai.api_key = openai_api_key
 
+            # TODO: no prompt (starts from BOS) or other prompt or more prompts?
             paper_prompt = "a photo of"
-            extra_prompt1 = "The action happening in this picture is"
-            extra_prompt2 = "The location of this picture is"
-            extra_prompt3 = "The background of this picture shows"
+            ##extra_prompt1 = "The action happening in this picture is"
+            #extra_prompt2 = "The location of this picture is"
+            #extra_prompt3 = "The background of this picture shows"
 
-            prompts = [paper_prompt, extra_prompt1, extra_prompt2, extra_prompt3]
+            # input change to batched because noun different for each question
+            paper_prompt = [paper_prompt] * len(samples["text_input"])
             
+            nouns = []
+            for question in samples["text_input"]:
+                picked_noun = noun_gpt(question, temperature=0)
+                print(f"GPT picked '{picked_noun}' from '{question}'")
+                nouns.append(picked_noun)
 
-            # ask questions to determine which prompts to use.
-            questions = []
-            prompt_for_questions = []
-            # people?
-            questions.append('Are there people in this picture? Yes or No.')
-            prompts.append('The people in this picture are')
+            # TODO: add in the picture? or could be described or is described
+            noun_prompts = [f"the {noun} can be described as" for noun in nouns]
 
-            answers = []
-            for question in questions:
-                samples['prompt'] = question
-                answer_to_gpt_embed = self.generate(
-                            samples=samples,
-                            use_nucleus_sampling=True,
-                            num_beams=5,
-                            max_length=20,
-                            min_length=1,
-                            #top_p=0.9,
-                            repetition_penalty=2.0,
-                            length_penalty=2.0,
-                            num_captions=1, 
-                            )
-
-                # answer_to_gpt_embed is a list with 'Yes' or 'No'
-                answers.append(answer_to_gpt_embed)
-
-
-            # #extra_prompt7 = "the story of this picture is"
-            # extra_prompt8 = "The activity related to the picture is"
-            #extra_prompt5 = "Describe the plant in the picture"
-            #extra_prompt9 = "The plant in the picture"
-            #extra_prompt10 = "The type of plant in the picture"
-            #extra_prompt11 = "The purpose of the plant in the picture"
-            #extra_prompt12 = "the size of the plant in the picture is"
-            # nouns = questionlemmatize(samples['text_input'])
-            #print(samples['text_input'])
-            #print(nouns)
-            #prompts = [[extra_prompt1]] * len(samples['text_input'])
-            #prompts = [extra_prompt5, extra_prompt9, extra_prompt10, extra_prompt11, extra_prompt12]
-            
+            prompt_batches = []
+            prompt_batches.append(paper_prompt)
+            prompt_batches.append(noun_prompts)
             contexts = []
-            for prompt in prompts: 
-                samples['prompt'] = prompt
-                #gpt_questions = gpt_generate_questions(text_input)
-                #print(gpt_questions)
-                listed_answers = []
-                #for batch in list(zip(*prompts)):               
+            for prompt_batch in prompt_batches: 
+                samples['prompt'] = prompt_batch
 
                 answer_to_gpt_embed = self.generate(
                         samples=samples,
-                        use_nucleus_sampling=True,
+                        use_nucleus_sampling=False,
                         num_beams=5,
-                        max_length=75,
+                        max_length=20,
                         min_length=1,
                         #top_p=0.9,
                         repetition_penalty=2.0,
-                        length_penalty=2.0,
+                        length_penalty=1.5,
                         num_captions=1, 
+                        temperature=0
                         )
-                context = [f"{prompt} {answer}" for answer in answer_to_gpt_embed]
+                context = [f"{prompt} {answer}" for prompt, answer in zip(prompt_batch, answer_to_gpt_embed)]
                 contexts.append(context)
-            
-            first_q_index = len(contexts)-len(answers)
-            stripped_contexts = []
-            # loop over all context per img and delete context of questions that answered no
-            for i, context_per_img in enumerate(zip(*contexts)):
-                del_indexes = []
-                answers_img = [answer[i] for answer in answers]
-                for i, answer in enumerate(answers_img):
-                    # delete this prompt if the answer to the question was not yes
-                    if answer != "Yes":
-                        del_indexes.append(first_q_index + i)
-
-                img_context = [context_per_img[i] for i in range(len(context_per_img)) if i not in del_indexes]
-                stripped_contexts.append(img_context)
-
+    
+            contexts = list(zip(*contexts))
             gpt_answers_batch = []
-            for context, org_question in zip(stripped_contexts, samples["text_input"]):
-                gpt_answers_batch.append(context_gpt(context, org_question))
+            for context, org_question, original_answer in zip(contexts, samples["text_input"], output_text):
+                gpt_answers_batch.append(context_gpt(context, org_question, original_answer, temperature=0))
 
             if self._apply_lemmatizer:
                 gpt_answers_batch = self._lemmatize(gpt_answers_batch)
 
-            print('---------------------New bach---------------------')
-            for context, org_question, gpt_answer in zip(stripped_contexts, samples['text_input'], gpt_answers_batch):
-                print('Original question: ', org_question)
-                print('GPT answer: ', gpt_answer)
-                print('\n \n')
-                print(context)
-                print('\n ----------------------')
-
-
-            
-            """
-            gpt_summarised_batch = []
-            for questions, answers, org_question, org_answer in zip(prompts, listed_answers, text_input, output_text):
-                gpt_summarised_batch.append(summarized_gpt(questions, answers, org_question, org_answer))
-
-            if self._apply_lemmatizer:
-                gpt_summarised_batch = self._lemmatize(gpt_summarised_batch)
+            print('---------------------New batch---------------------')
+            for context, org_question, gpt_answer, original_answer in zip(contexts, samples['text_input'], gpt_answers_batch, output_text):
+               print('Original question: ', org_question)
+               print('Blip answer', original_answer)
+               print('GPT answer: ', gpt_answer)
+               print('\n ')
+               print('context for gpt', context)
+               print('-----------------------------------')
             
 
-            print('new batch')
-            for gpt_summarized, questions, answers, org_question, org_answer in zip(gpt_summarised_batch, gpt_questions, listed_answers, text_input, output_text):
-                print("Original question: ", org_question)
-                print("Original answer: ", org_answer)
-                print("GPT generated questions:", questions)
-                print("THe answers to those GPT questions:", answers)
-                print("FINAL answer: ", gpt_summarized, "\n")        
+        
+            
+            #print(gpt_answers_batch)
             ################ ADDED PART ######################
 
-            return gpt_summarised_batch
-            """
+            return gpt_answers_batch
         except RateLimitError:
             time.sleep(5)
             return self.predict_answers(
@@ -401,6 +405,21 @@ class FlanGPTCaption(Blip2Base):
                 length_penalty,
                 **kwargs
             )
+        except APIError:
+            time.sleep(5)
+            return self.predict_answers(
+                samples,
+                num_beams,
+                inference_method,
+                max_len,
+                min_len,
+                num_ans_candidates,
+                answer_list,
+                prompt,
+                length_penalty,
+                **kwargs
+            )
+
 
     def _lemmatize(self, answers):
         def apply(answer):

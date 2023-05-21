@@ -63,26 +63,68 @@ def summarized_gpt(questions, answers, original_question, original_answer, tempe
     else:
       return response["choices"][0]['message']["content"].strip()
 
-def context_gpt(all_info, original_question, temperature=0.2):
+def context_gpt(all_info, original_question, original_answer, temperature=0):
     """
     Helper function for prompting the GPT3 chat-based language model
     """
     messages = [
-        {"role": "system", "content":  "You are helpful assistant that answers a question in one or two words based on the provided context."},
-        #{"role": "user", "content": f"The main question is '{original_question}'. The original answer from the visual question answering model was '{original_answer}'"}
+        {"role": "system", "content":  "Answer a question in one or two words by using the context"},
         ]
     
-    context = "\n".join(all_info)
-       #context = ""
-       #messages.append({"role": "user", "content": f"We asked: {question}"})
-    messages.append({"role": "user", "content": f"Question: {original_question}. Context: {context}"})
-
-    #messages.extend([{"role": "user", "content": f"Please answer the main question in one or two words: '{original_question}'. You can either repeat the original answer '{original_answer}', or improve it if necessary, still using only one or two words."}])
+    #context = "\n".join(all_info)
+    context = '. '.join(all_info)
+    print('gpt context', context)
+    messages.append({"role": "user", "content": f"Context: {context}. Question: {original_question}."})
 
     response = openai.ChatCompletion.create(
       model="gpt-3.5-turbo",
       messages=messages,
       max_tokens = 10,
+      temperature=temperature)
+
+    match = re.search("[a-zA-Z].*[a-zA-Z]", response["choices"][0]['message']["content"].strip())
+    if match:
+      answer = match.group()
+    else:
+      answer = response["choices"][0]['message']["content"].strip()
+    not_known = ["unknown", "none", "?", "information", "not specific", "no specific", "not enough", "unclear", "context", "no answer", "not provided", "not clear", "not known", "unspecified", "undetermined", "not specified", "not determined"]
+
+    answer = answer.lower()
+    
+    #split_answer = answer.split()
+    for word in not_known:
+        if word in answer:
+            print(f"gpt {answer} for {original_question} but blip: {original_answer}")
+            return original_answer
+
+    return answer
+    
+
+    
+
+def noun_gpt(original_question, temperature=0):
+    """
+    Helper function for prompting the GPT3 chat-based language model
+    """
+    messages = [
+        {"role": "system", "content":  "Pick the most important noun that needs to be described to answer the question"},
+        ]
+    messages.append({"role": "user", "content": f"Is this a room for a boy or girl?"})
+    messages.append({"role": "assistant", "content": f"room"})
+    messages.append({"role": "user", "content": f"In what year was this desert first introduced?"})
+    messages.append({"role": "assistant", "content": f"desert"})
+    messages.append({"role": "user", "content": f"what could this gentleman be carrying in that red bag?"})
+    messages.append({"role": "assistant", "content": f"bag"})
+    messages.append({"role": "user", "content": f"who leaves a toilet like this?"})
+    messages.append({"role": "assistant", "content": f"toilet"})
+    
+    
+    messages.append({"role": "user", "content": f"{original_question}"})
+
+    response = openai.ChatCompletion.create(
+      model="gpt-3.5-turbo",
+      messages=messages,
+      max_tokens = 7,
       temperature=temperature)
 
     match = re.search("[a-zA-Z].*[a-zA-Z]", response["choices"][0]['message']["content"].strip())
