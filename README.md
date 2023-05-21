@@ -4,7 +4,7 @@ as well our additions. Since SalesForce has packaged the LAVIS repository such t
 We do need to build the LAVIS repository from source, since they updated the master branch regarding a GitHub issue (re)raised by us, which is not yet included in the PyPI version.
 As such we have only included the minimal required code to reproduce two of their experiments (see the notebook and blogspot for details). 
 
-## Environment installation
+## 1. Environment installation
 To get conflicting dependencies to function we needed to modify the environment more than a simple YAML file would allow.
 For installation specifically on a Lisa cluster environment we made a script to automate the installation process.
 ```bash
@@ -21,7 +21,7 @@ source activate dl2
 conda install cudatoolkit -y
 ```
 
-Install dependencies required for the HuggingFace model quantization, OpenAI and various other. Also build the LAVIS package from source
+Install dependencies required for the HuggingFace model quantization, OpenAI and various others. Also build the LAVIS package from source
 ```bash
 pip install ipykernel accelerate==0.18.0 bitsandbytes==0.38.1 openai nbconvert
 pip install git+https://github.com/salesforce/LAVIS.git
@@ -37,3 +37,17 @@ Modify the installed version of BitsAndBytes if you get errors indicating 'missi
 cd <your conda environments location>/envs/dl2/lib/python3.10/site-packages/bitsandbytes
 cp libbitsandbytes_cuda<your cuda version>.so libbitsandbytes_cpu.so
 ```
+
+## 2. Downloading datasets
+By default the Lavis library is able to download the VQAV2, OKVQA and GQA datasets whenever it needs them. It will however attempt to do so in a root level folder, which will often lead to permission issues (for example on the Lisa cluster). As such, we created custom scripts to download all datasets to legal locations in our ecosystem.
+
+To download the VQA/OKVQA dataset (which share the same images), please move to the `reproducing` folder and run:
+```bash
+download_coco.py
+```
+To download the GQA dataset
+```bash
+download_gqa.py
+```
+
+Since these downloads likely take over 15 minutes, you can also schedule `run_dataset.job`.
