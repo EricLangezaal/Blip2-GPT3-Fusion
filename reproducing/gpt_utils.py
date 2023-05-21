@@ -68,9 +68,17 @@ def context_gpt(all_info, original_question, original_answer, temperature=0):
     Helper function for prompting the GPT3 chat-based language model
     """
     messages = [
-        {"role": "system", "content":  "Answer a question in one or two words by using the context"},
+        {"role": "system", "content":  "Give a single answer to the question in one or two words by using the context"},
         ]
-    
+    ex_q = "What is the name of the famous dreamworks animated film where this animal was voiced by chris rock?"
+    ex_q2 = "What is the name of the bridge in the background?"
+    ex_q3 = "What are the most popular countries for this sport?"
+    messages.append({"role": "user", "content": f"Context: A photo of a zebra. The animal can be described as a zebra. Question: {ex_q}."})
+    messages.append({"role": "assistant", "content": f"madagascar"})
+    messages.append({"role": "user", "content": f"Context: a photo of a man standing next to a bike in front of a building with a golden gate. The bridge can be described as a golden gate bridge because of it's shape and the color of it's paint. Question: {ex_q2}."})
+    messages.append({"role": "assistant", "content": f"golden gate"})
+    messages.append({"role": "user", "content": f"Context: 'a photo of a group of boys playing soccer on a field. The sport can be described as a game of soccer played on a large field. Question: {ex_q3}."})
+    messages.append({"role": "assistant", "content": f"brazil"})
     #context = "\n".join(all_info)
     context = '. '.join(all_info)
     print('gpt context', context)
@@ -87,7 +95,7 @@ def context_gpt(all_info, original_question, original_answer, temperature=0):
       answer = match.group()
     else:
       answer = response["choices"][0]['message']["content"].strip()
-    not_known = ["unknown", "none", "?", "information", "not specific", "no specific", "not enough", "unclear", "context", "no answer", "not provided", "not clear", "not known", "unspecified", "undetermined", "not specified", "not determined"]
+    not_known = ["unknown", "sorry", "can not", "not applicable", "n/a", "n / a", "mention", "apologies", "no question", "not a question", "not possible", "impossible", "none", "?", "information", "not specific", "no specific", "not enough", "unclear", "context", "no answer", "not provided", "not clear", "not known", "unspecified", "undetermined", "not specified", "not determined"]
 
     answer = answer.lower()
     
@@ -97,8 +105,14 @@ def context_gpt(all_info, original_question, original_answer, temperature=0):
             print(f"gpt {answer} for {original_question} but blip: {original_answer}")
             return original_answer
 
-    return answer
-    
+    return get_single_answer(answer)
+
+def get_single_answer(ans):
+    for f in [" or ", "/", ",", " - ", "("]:
+      ans = ans.split(f)[0]
+    if ans.count('"') == 2:
+        ans = re.findall(r'"(.*?)"', ans)[0]
+    return ans
 
     
 

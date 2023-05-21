@@ -385,13 +385,10 @@ class FlanGPTCaption(Blip2Base):
                print('-----------------------------------')
             
 
-        
-            
-            #print(gpt_answers_batch)
             ################ ADDED PART ######################
 
             return gpt_answers_batch
-        except RateLimitError:
+        except (RateLimitError, APIError):
             time.sleep(5)
             return self.predict_answers(
                 samples,
@@ -405,21 +402,7 @@ class FlanGPTCaption(Blip2Base):
                 length_penalty,
                 **kwargs
             )
-        except APIError:
-            time.sleep(5)
-            return self.predict_answers(
-                samples,
-                num_beams,
-                inference_method,
-                max_len,
-                min_len,
-                num_ans_candidates,
-                answer_list,
-                prompt,
-                length_penalty,
-                **kwargs
-            )
-
+       
 
     def _lemmatize(self, answers):
         def apply(answer):
