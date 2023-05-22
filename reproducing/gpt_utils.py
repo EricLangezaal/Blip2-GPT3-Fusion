@@ -79,9 +79,19 @@ def context_gpt(all_info, original_question, original_answer, temperature=0, ver
     messages.append({"role": "assistant", "content": f"golden gate"})
     messages.append({"role": "user", "content": f"Context: 'a photo of a group of boys playing soccer on a field. The sport can be described as a game of soccer played on a large field. Question: {ex_q3}."})
     messages.append({"role": "assistant", "content": f"brazil"})
-    #context = "\n".join(all_info)
+
+
+
+    # messages.append({"role": "user", "content": f"Context: A photo of a zebra. Question: {ex_q}."})
+    # messages.append({"role": "assistant", "content": f"madagascar"})
+    # messages.append({"role": "user", "content": f"Context: a photo of a man standing next to a bike in front of a building with a golden gate. Question: {ex_q2}."})
+    # messages.append({"role": "assistant", "content": f"golden gate"})
+    # messages.append({"role": "user", "content": f"Context: 'a photo of a group of boys playing soccer on a field. Question: {ex_q3}."})
+    # messages.append({"role": "assistant", "content": f"brazil"})
+
+
     context = '. '.join(all_info)
-    messages.append({"role": "user", "content": f"Context: {context}. Question: {original_question}."})
+    messages.append({"role": "user", "content": f"Context: {context}. Question: {original_question}"})
 
     response = openai.ChatCompletion.create(
       model="gpt-3.5-turbo",
@@ -94,7 +104,7 @@ def context_gpt(all_info, original_question, original_answer, temperature=0, ver
       answer = match.group()
     else:
       answer = response["choices"][0]['message']["content"].strip()
-    not_known = ["unknown", "sorry", "can not", "not applicable", "n/a", "n / a", "mention", "apologies", "no question", "not a question", "not possible", "impossible", "none", "?", "information", "not specific", "no specific", "not enough", "unclear", "context", "no answer", "not provided", "not clear", "not known", "unspecified", "undetermined", "not specified", "not determined"]
+    not_known = ["unknown", "sorry", "valid", "certain", "difficult", "specific", "perspective", "personal", "preference", "description", "can not", "applicable", "n/a", "n / a", "mention", "apologies", "question", "not a question", "not possible", "impossible", "none", "?", "information", "not specific", "no specific", "enough", "unclear", "context", "answer", "provided", "not clear", "not known", "unspecified", "undetermined", "specified", "determine"]
 
     answer = answer.lower()
     
@@ -108,7 +118,7 @@ def context_gpt(all_info, original_question, original_answer, temperature=0, ver
     return get_single_answer(answer)
 
 def get_single_answer(ans):
-    for f in [" or ", "/", ",", " - ", "("]:
+    for f in [" or ", " and ", "/", ",", " - ", "("]:
       ans = ans.split(f)[0]
     if ans.count('"') == 2:
         ans = re.findall(r'"(.*?)"', ans)[0]

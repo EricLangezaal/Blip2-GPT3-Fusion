@@ -155,6 +155,7 @@ class FlanGPTCaption(Blip2T5int8):
             nouns = []
             for question in samples["text_input"]:
                 picked_noun = noun_gpt(question, temperature=0)
+                picked_noun = get_single_answer(picked_noun)
                 print(f"GPT picked '{picked_noun}' from '{question}'")
                 nouns.append(picked_noun)
 
