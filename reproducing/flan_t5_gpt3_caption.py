@@ -132,7 +132,7 @@ class FlanGPTCaption(Blip2T5int8):
         try:
             if isinstance(samples["text_input"], str):
                 samples["text_input"] = [samples["text_input"]]
-                
+
             samples["prompt"] = prompt_question(samples["text_input"])
             output_text = self.generate(
                 samples=samples,
@@ -189,7 +189,7 @@ class FlanGPTCaption(Blip2T5int8):
             gpt_answers_batch = []
             for context, org_question, original_answer in zip(contexts, samples["text_input"], output_text):
                 print('BLIP generated context for GPT: ', '. '.join(context))
-                gpt_answers_batch.append(context_gpt(context, org_question, original_answer, temperature=0))
+                gpt_answers_batch.append(context_gpt(context, org_question, original_answer, temperature=0, verbose=self.verbose))
 
             if self._apply_lemmatizer:
                 gpt_answers_batch = self._lemmatize(gpt_answers_batch)

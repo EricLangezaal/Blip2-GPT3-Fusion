@@ -63,7 +63,7 @@ def summarized_gpt(questions, answers, original_question, original_answer, tempe
     else:
       return response["choices"][0]['message']["content"].strip()
 
-def context_gpt(all_info, original_question, original_answer, temperature=0):
+def context_gpt(all_info, original_question, original_answer, temperature=0, verbose=False):
     """
     Helper function for prompting the GPT3 chat-based language model
     """
@@ -101,7 +101,8 @@ def context_gpt(all_info, original_question, original_answer, temperature=0):
     #split_answer = answer.split()
     for word in not_known:
         if word in answer:
-            print(f"gpt {answer} for {original_question} but blip: {original_answer}")
+            if verbose:
+               print(f"gpt {answer} for {original_question} but blip: {original_answer}")
             return original_answer
 
     return get_single_answer(answer)
