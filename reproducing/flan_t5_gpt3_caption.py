@@ -83,22 +83,11 @@ class FlanGPTCaption(Blip2T5int8):
 
         inputs_t5 = self.t5_proj(query_output.last_hidden_state)
         atts_t5 = torch.ones(inputs_t5.size()[:-1], dtype=torch.long).to(image.device)
-        prompt = samples["prompt"]
-        #print(prompt)
-        """
-        if "prompt" in samples.keys():
-            prompt = samples["prompt"]
-            print('prompt = ', prompt)
-        else:
-            prompt = self.prompt
 
+        prompt = samples["prompt"]
         if isinstance(prompt, str):
             prompt = [prompt] * image.size(0)
-        else:
-            assert len(prompt) == image.size(
-                0
-            ), "The number of prompts must be equal to the batch size."
-        """
+        
         input_tokens = self.t5_tokenizer(
             prompt, padding="longest", return_tensors="pt"
         ).to(image.device)
@@ -140,87 +129,41 @@ class FlanGPTCaption(Blip2T5int8):
         length_penalty=-1,
         **kwargs
     ):
-        try:  
-            # TODO: inefficient because these encodings are also in generate()
-            # but easy to break because of prompt / question difference
-            image = samples["image"]
-            with self.maybe_autocast():
-                image_embeds = self.ln_vision(self.visual_encoder(image))
-            image_embeds = image_embeds.float()
-            image_atts = torch.ones(image_embeds.size()[:-1], dtype=torch.long).to(
-                image.device
-            )
-
-            query_tokens = self.query_tokens.expand(image_embeds.shape[0], -1, -1)
-            query_output = self.Qformer.bert(
-                query_embeds=query_tokens,
-                encoder_hidden_states=image_embeds,
-                encoder_attention_mask=image_atts,
-                return_dict=True,
-            )
-
-            inputs_t5 = self.t5_proj(query_output.last_hidden_state)
-            atts_t5 = torch.ones(inputs_t5.size()[:-1], dtype=torch.long).to(image.device)
-
+        try:
             if isinstance(samples["text_input"], str):
                 samples["text_input"] = [samples["text_input"]]
-            if prompt:
-                text_input = [prompt.format(question) for question in samples["text_input"]]
-            else:
-                text_input = samples["text_input"]
-
-            prompted_text_input = prompt_question(text_input)
-
-            input_tokens = self.t5_tokenizer(
-                prompted_text_input, padding="longest", return_tensors="pt"
-            ).to(image.device)
-            
-
-            ############# GENERATION OF REGULAR ANSWER #########################
-            encoder_atts = torch.cat([atts_t5, input_tokens.attention_mask], dim=1)
-
-            inputs_embeds = self.t5_model.encoder.embed_tokens(input_tokens.input_ids)
-            inputs_embeds = torch.cat([inputs_t5, inputs_embeds], dim=1)
-
-            outputs = self.t5_model.generate(
-                inputs_embeds=inputs_embeds,
-                attention_mask=encoder_atts,
-                do_sample=False,
-                num_beams=num_beams,
-                max_new_tokens=max_len,
-                min_length=min_len,
-                length_penalty=length_penalty,
-            )
-            output_text = self.t5_tokenizer.batch_decode(
-                outputs, skip_special_tokens=True
+                
+            samples["prompt"] = prompt_question(samples["text_input"])
+            output_text = self.generate(
+                samples=samples,
+                max_length=max_len,
+                min_length=min_len, 
+                length_penalty=length_penalty, 
+                top_p = 1.0
             )
 
             if self._apply_lemmatizer:
                 output_text = self._lemmatize(output_text)          
 
-            #################### ADDED PART  ########################################
             # GENERATION OF OBJECT DESCRIPTION
-            # TODO: no prompt (starts from BOS) or other prompt or more prompts?
             paper_prompt = "a photo of"
-            ##extra_prompt1 = "The action happening in this picture is"
-            #extra_prompt2 = "The location of this picture is"
-            #extra_prompt3 = "The background of this picture shows"
 
             # input change to batched because noun different for each question
             paper_prompt = [paper_prompt] * len(samples["text_input"])
             
+            # let GPT pick the most important noun in questions
             nouns = []
             for question in samples["text_input"]:
                 picked_noun = noun_gpt(question, temperature=0)
                 print(f"GPT picked '{picked_noun}' from '{question}'")
                 nouns.append(picked_noun)
 
-            # TODO: add in the picture? or could be described or is described
+            # create BLIP-2 generated context for GPT3 
             noun_prompts = [f"the {noun} can be described as" for noun in nouns]
-
             prompt_batches = []
             prompt_batches.append(paper_prompt)
             prompt_batches.append(noun_prompts)
+
             contexts = []
             for prompt_batch in prompt_batches: 
                 samples['prompt'] = prompt_batch
@@ -241,8 +184,11 @@ class FlanGPTCaption(Blip2T5int8):
                 contexts.append(context)
     
             contexts = list(zip(*contexts))
+
+            # let GPT3 answer from context
             gpt_answers_batch = []
             for context, org_question, original_answer in zip(contexts, samples["text_input"], output_text):
+                print('BLIP generated context for GPT: ', '. '.join(context))
                 gpt_answers_batch.append(context_gpt(context, org_question, original_answer, temperature=0))
 
             if self._apply_lemmatizer:
@@ -258,8 +204,6 @@ class FlanGPTCaption(Blip2T5int8):
                     print('context for gpt', context)
                     print('-----------------------------------')
             
-
-            ################ ADDED PART ######################
             return gpt_answers_batch
         
         except (RateLimitError, APIError):
@@ -315,21 +259,3 @@ class FlanGPTCaption(Blip2T5int8):
         model.load_checkpoint_from_config(cfg)
 
         return model
-
-def questionlemmatize(questions):
-    import spacy
-    lemmatizer = spacy.load("en_core_web_sm")
-    def apply(questions):
-        doc = lemmatizer(questions)
-
-        nouns = []
-        for token in doc:
-            if token.pos_ in ["NOUN"]:
-                nouns.append(token.text)
-            #else:
-            #    words.append(token.text)
-        #answer = " ".join(words)
-
-        return nouns
-    
-    return [apply(question) for question in questions]

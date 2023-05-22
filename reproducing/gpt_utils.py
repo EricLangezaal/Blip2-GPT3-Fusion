@@ -81,7 +81,6 @@ def context_gpt(all_info, original_question, original_answer, temperature=0):
     messages.append({"role": "assistant", "content": f"brazil"})
     #context = "\n".join(all_info)
     context = '. '.join(all_info)
-    print('gpt context', context)
     messages.append({"role": "user", "content": f"Context: {context}. Question: {original_question}."})
 
     response = openai.ChatCompletion.create(
