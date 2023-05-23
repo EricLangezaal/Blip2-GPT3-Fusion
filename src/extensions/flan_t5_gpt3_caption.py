@@ -5,6 +5,7 @@
  For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
 """
 import logging
+import time
 
 import torch
 import torch.nn as nn
@@ -18,9 +19,8 @@ from lavis.models.blip2_models.modeling_t5 import T5Config, T5ForConditionalGene
 import openai
 from openai.error import RateLimitError, APIError
 
-from gpt_utils import *
-from flan_t5_int8 import Blip2T5int8
-import time
+from extensions.gpt_utils import *
+from reproducing.flan_t5_int8 import Blip2T5int8
 
 @registry.register_model("blip2_t5_gpt3_caption")
 class FlanGPTCaption(Blip2T5int8):

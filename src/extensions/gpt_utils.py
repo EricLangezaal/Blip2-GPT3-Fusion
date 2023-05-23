@@ -1,6 +1,7 @@
 import openai
 from pathlib import Path
 import re
+import os
 
 def prompt_chat_gpt(prompt, max_tokens=64, temperature=0.7, stop=None):
   """
@@ -64,13 +65,10 @@ def summarized_gpt(questions, answers, original_question, original_answer, tempe
     else:
       return response["choices"][0]['message']["content"].strip()
     
-
-gpt_unknowns = None
-
+    
 def get_gpt_unknowns():
-  if gpt_unknowns:
-      return gpt_unknowns
-  path = Path.cwd() / "settings/gpt_unknown_answers.txt"
+  dirname = Path(os.path.dirname(os.path.realpath(__file__)))
+  path = dirname / "configs/gpt_unknown_answers.txt"
   with path.open(mode="r") as file:
      gpt_unknowns = [w.lower() for w in file.read().splitlines()]
   return gpt_unknowns

@@ -41,7 +41,7 @@ cp libbitsandbytes_cuda<your cuda version>.so libbitsandbytes_cpu.so
 ## 2. Downloading datasets
 By default the Lavis library is able to download the VQAV2, OKVQA and GQA datasets whenever it needs them. It will however attempt to do so in a root level folder, which will often lead to permission issues (for example on the Lisa cluster). As such, we created custom scripts to download all datasets to legal locations in our ecosystem.
 
-To download the VQA/OKVQA dataset (which share the same images), please move to the `reproducing` folder and run:
+To download the VQA/OKVQA dataset (which share the same images), please move to the `src/data/` folder and run:
 ```bash
 download_coco.py
 ```
@@ -50,4 +50,19 @@ To download the GQA dataset
 download_gqa.py
 ```
 
-Since these downloads likely take over 15 minutes, you can also schedule `run_dataset.job`.
+Since these downloads likely take over 15 minutes, you can also schedule `run_dataset.job` from that folder.
+
+## 3. Rerunning an evaluation experiment
+Using our codebase reproducing an experiment from the original BLIP-2 paper on VQAV2, OKVQA and GQA can be achieved by running:
+```bash
+cd src/
+python -m torch.distributed.run --nproc_per_node=1 evaluate.py --cfg-path reproducing/configs/<experiment_config>.yaml 
+```
+Where `<experiment_config>` is the name of one of the experiment configuration files for the respective model and dataset.
+
+In a similar manner, it is possible to evaluate our custom pipeline on OKVQA. Our ablation study which let GPT-3 pick three questions for BLIP-2 can also be tested separately using its configuration file. To evaluate our final pipeline on the OKVQA test set:
+```bash
+cd src/
+python -m torch.distributed.run --nproc_per_node=1 evaluate.py --cfg-path extensions/configs/okvqa_flant5xl_caption_gpt3.yaml
+```
+There is also a Slurm job file available called `run_eval.job`, make sure to also modify the configuration file path if applicable.

@@ -13,9 +13,8 @@ module purge
 module load 2021
 module load Anaconda3/2021.05
 
-# Your job starts in the directory where you call sbatch
+# The job starts in the directory where you call sbatch. Please do so in the same folder as evaluate.py
 # Activate your environment
 source activate dl2
 # Run your code
-# python -m torch.distributed.run --nproc_per_node=2 evaluate.py --cfg-path settings/okvqa_flan5xl.yaml
-python -m torch.distributed.run --nproc_per_node=1 evaluate.py --cfg-path settings/okvqaflant5xlgpt3.yaml
+python -m torch.distributed.run --nproc_per_node=1 evaluate.py --cfg-path extensions/configs/okvqa_flant5xl_caption_gpt3.yaml

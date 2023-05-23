@@ -1,11 +1,6 @@
- # Copyright (c) 2022, salesforce.com, inc.
- # All rights reserved.
- # SPDX-License-Identifier: BSD-3-Clause
- # For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
-
 model:
   arch: "blip2_t5_gpt3_caption"
-  model_type: pretrain_flant5xl
+  model_type: caption_coco_flant5xl
   use_grad_checkpoint: False
 
   openai_api_key: "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"
@@ -41,7 +36,7 @@ run:
   prompt: "{}"
 
   seed: 42
-  output_dir: "output/OKVQA/flan5xlgpt3/"
+  output_dir: "output/OKVQA/flan5xl_coco_gpt3/"
 
   evaluate: True
   test_splits: ["test"]

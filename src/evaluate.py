@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+import os
 import random
 
 import numpy as np
@@ -25,9 +26,9 @@ from lavis.processors import *
 from lavis.runners.runner_base import RunnerBase
 from lavis.tasks import *
 
-from flan_t5_int8 import Blip2T5int8
-from flan_t5_gpt3_summarize import Blip2T5gtp3int8
-from flan_t5_gpt3_caption import FlanGPTCaption
+from reproducing.flan_t5_int8 import Blip2T5int8
+from extensions.flan_t5_gpt3_summarize import FlanGPTSummarize
+from extensions.flan_t5_gpt3_caption import FlanGPTCaption
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Training")
@@ -79,7 +80,9 @@ def main():
     cfg.pretty_print()
 
     task = tasks.setup_task(cfg)
-    registry.mapping['paths']['cache_root'] = Path.cwd() / 'export'
+    dirname = Path(os.path.dirname(os.path.realpath(__file__)))
+
+    registry.mapping['paths']['cache_root'] = dirname / 'data/export'
     datasets = task.build_datasets(cfg)
     model = task.build_model(cfg)
 

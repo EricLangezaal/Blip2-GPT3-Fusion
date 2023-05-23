@@ -20,26 +20,22 @@ from lavis.common.utils import (
 from lavis.common.registry import registry
 
 
-DATA_URL = {
-    "train": "http://images.cocodataset.org/zips/train2014.zip",  # md5: 0da8c0bd3d6becc4dcb32757491aca88
-    "val": "http://images.cocodataset.org/zips/val2014.zip",  # md5: a3d79f5ed8d289b7a7554ce06a5782b3
-    "test": "http://images.cocodataset.org/zips/test2014.zip",  # md5: 04127eef689ceac55e3a572c2c92f264
-    "test2015": "http://images.cocodataset.org/zips/test2015.zip",  # md5: 04127eef689ceac55e3a572c2c92f264
-}
+DATA_URL = "https://downloads.cs.stanford.edu/nlp/data/gqa/images.zip"
 
 
 def download_datasets(root, url):
-    download_and_extract_archive(url=url, download_root=root, extract_root=storage_dir)
+    download_and_extract_archive(url=url, download_root=root, extract_root=storage_dir.parent)
 
 
 if __name__ == "__main__":
 
-    config_path = Path.cwd() / "settings/download_vqa.yaml" 
-    registry.mapping['paths']['cache_root'] = Path.cwd() / 'export'
+    dirname = Path(os.path.dirname(os.path.realpath(__file__)))
+    config_path = dirname / "configs/download_gqa.yaml"
+    registry.mapping['paths']['cache_root'] = dirname / 'export'
 
     storage_dir = OmegaConf.load(
         config_path
-    ).datasets.coco_vqa.build_info.images.storage
+    ).datasets.gqa.build_info.images.storage
 
     download_dir = Path(get_cache_path(storage_dir)).parent / "download"
     storage_dir = Path(get_cache_path(storage_dir))
@@ -49,9 +45,8 @@ if __name__ == "__main__":
         exit(0)
 
     try:
-        for k, v in DATA_URL.items():
-            print("Downloading {} to {}".format(v, k))
-            download_datasets(download_dir, v)
+        print("Downloading {}".format(DATA_URL))
+        download_datasets(download_dir, DATA_URL)
     except Exception as e:
         # remove download dir if failed
         cleanup_dir(download_dir)
