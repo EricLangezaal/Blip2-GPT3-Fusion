@@ -19,7 +19,7 @@ import openai
 from openai.error import RateLimitError, APIError
 
 from gpt_utils import *
-from flan_t5_gpt3_int8 import Blip2T5int8
+from flan_t5_int8 import Blip2T5int8
 import time
 
 @registry.register_model("blip2_t5_gpt3_caption")
