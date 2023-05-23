@@ -151,19 +151,8 @@ class FlanGPTCaption(Blip2T5int8):
             # input change to batched because noun different for each question
             paper_prompt = [paper_prompt] * len(samples["text_input"])
             
-            # let GPT pick the most important noun in questions
-            nouns = []
-            for question in samples["text_input"]:
-                picked_noun = noun_gpt(question, temperature=0)
-                picked_noun = get_single_answer(picked_noun)
-                print(f"GPT picked '{picked_noun}' from '{question}'")
-                nouns.append(picked_noun)
-
-            # create BLIP-2 generated context for GPT3 
-            noun_prompts = [f"the {noun} can be described as" for noun in nouns]
             prompt_batches = []
             prompt_batches.append(paper_prompt)
-            prompt_batches.append(noun_prompts)
 
             contexts = []
             for prompt_batch in prompt_batches: 
