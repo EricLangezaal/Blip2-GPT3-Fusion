@@ -1,4 +1,5 @@
 import openai
+from pathlib import Path
 import re
 
 def prompt_chat_gpt(prompt, max_tokens=64, temperature=0.7, stop=None):
@@ -62,6 +63,17 @@ def summarized_gpt(questions, answers, original_question, original_answer, tempe
       return match.group()
     else:
       return response["choices"][0]['message']["content"].strip()
+    
+
+gpt_unknowns = None
+
+def get_gpt_unknowns():
+  if gpt_unknowns:
+      return gpt_unknowns
+  path = Path.cwd() / "settings/gpt_unknown_answers.txt"
+  with path.open(mode="r") as file:
+     gpt_unknowns = [w.lower() for w in file.read().splitlines()]
+  return gpt_unknowns
 
 def context_gpt(all_info, original_question, original_answer, temperature=0, verbose=False):
     """
@@ -104,12 +116,9 @@ def context_gpt(all_info, original_question, original_answer, temperature=0, ver
       answer = match.group()
     else:
       answer = response["choices"][0]['message']["content"].strip()
-    not_known = ["unknown", "sorry", "valid", "certain", "difficult", "specific", "perspective", "personal", "preference", "description", "can not", "applicable", "n/a", "n / a", "mention", "apologies", "question", "not a question", "not possible", "impossible", "none", "?", "information", "not specific", "no specific", "enough", "unclear", "context", "answer", "provided", "not clear", "not known", "unspecified", "undetermined", "specified", "determine"]
-
     answer = answer.lower()
     
-    #split_answer = answer.split()
-    for word in not_known:
+    for word in get_gpt_unknowns():
         if word in answer:
             if verbose:
                print(f"gpt {answer} for {original_question} but blip: {original_answer}")
