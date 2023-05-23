@@ -1,4 +1,5 @@
 import openai
+from pathlib import Path
 import re
 
 def prompt_chat_gpt(prompt, max_tokens=64, temperature=0.7, stop=None):
@@ -62,6 +63,17 @@ def summarized_gpt(questions, answers, original_question, original_answer, tempe
       return match.group()
     else:
       return response["choices"][0]['message']["content"].strip()
+    
+
+gpt_unknowns = None
+
+def get_gpt_unknowns():
+  if gpt_unknowns:
+      return gpt_unknowns
+  path = Path.cwd() / "settings/gpt_unknown_answers.txt"
+  with path.open(mode="r") as file:
+     gpt_unknowns = [w.lower() for w in file.read().splitlines()]
+  return gpt_unknowns
 
 def context_gpt(all_info, original_question, original_answer, temperature=0, verbose=False):
     """
@@ -73,22 +85,13 @@ def context_gpt(all_info, original_question, original_answer, temperature=0, ver
     ex_q = "What is the name of the famous dreamworks animated film where this animal was voiced by chris rock?"
     ex_q2 = "What is the name of the bridge in the background?"
     ex_q3 = "What are the most popular countries for this sport?"
-    messages.append({"role": "user", "content": f"Context: A photo of a zebra. The animal can be described as a zebra. Question: {ex_q}."})
+
+    messages.append({"role": "user", "content": f"Context: A photo of a zebra. Question: {ex_q}."})
     messages.append({"role": "assistant", "content": f"madagascar"})
-    messages.append({"role": "user", "content": f"Context: a photo of a man standing next to a bike in front of a building with a golden gate. The bridge can be described as a golden gate bridge because of it's shape and the color of it's paint. Question: {ex_q2}."})
+    messages.append({"role": "user", "content": f"Context: a photo of a man standing next to a bike in front of a building with a golden gate. Question: {ex_q2}."})
     messages.append({"role": "assistant", "content": f"golden gate"})
-    messages.append({"role": "user", "content": f"Context: 'a photo of a group of boys playing soccer on a field. The sport can be described as a game of soccer played on a large field. Question: {ex_q3}."})
+    messages.append({"role": "user", "content": f"Context: 'a photo of a group of boys playing soccer on a field. Question: {ex_q3}."})
     messages.append({"role": "assistant", "content": f"brazil"})
-
-
-
-    # messages.append({"role": "user", "content": f"Context: A photo of a zebra. Question: {ex_q}."})
-    # messages.append({"role": "assistant", "content": f"madagascar"})
-    # messages.append({"role": "user", "content": f"Context: a photo of a man standing next to a bike in front of a building with a golden gate. Question: {ex_q2}."})
-    # messages.append({"role": "assistant", "content": f"golden gate"})
-    # messages.append({"role": "user", "content": f"Context: 'a photo of a group of boys playing soccer on a field. Question: {ex_q3}."})
-    # messages.append({"role": "assistant", "content": f"brazil"})
-
 
     context = '. '.join(all_info)
     messages.append({"role": "user", "content": f"Context: {context}. Question: {original_question}"})
@@ -104,12 +107,9 @@ def context_gpt(all_info, original_question, original_answer, temperature=0, ver
       answer = match.group()
     else:
       answer = response["choices"][0]['message']["content"].strip()
-    not_known = ["unknown", "sorry", "valid", "certain", "difficult", "specific", "perspective", "personal", "preference", "description", "can not", "applicable", "n/a", "n / a", "mention", "apologies", "question", "not a question", "not possible", "impossible", "none", "?", "information", "not specific", "no specific", "enough", "unclear", "context", "answer", "provided", "not clear", "not known", "unspecified", "undetermined", "specified", "determine"]
-
     answer = answer.lower()
     
-    #split_answer = answer.split()
-    for word in not_known:
+    for word in get_gpt_unknowns():
         if word in answer:
             if verbose:
                print(f"gpt {answer} for {original_question} but blip: {original_answer}")
