@@ -78,6 +78,10 @@ The original BLIP-2 paper[^5] outlines 3 such datasets, which we also use for re
 
 While these datasets are manually curated using tools such as Amazon Mechanical Turk[^20], the label answers for the visual questions are from rather varying quality. In quite some cases some of the set of template answers for a question are blatantly wrong, such as answering "Africa" to the question "What south american country usually has this climate?". It is important to keep this mind, as the vast domain knowledge of GPT-3 can cause it give more precise/correct answers than the human annotaters, which are incorrectly counted as wrong because of this flawed gold standard. 
 
+### Evaluation metric
+
+All VQA datasets are evaluated with the same evaluation metric. The accuracy is determined by dividing the number of annotators out of ten that gave the same answer as BLIP-2 by 3. Therefore, a full accuracy of 1 is given when at least three annotators gave the same answer and an accuracy of 66\% when two out of ten annotators agree on the given answer. Pre-processing such as lowercasing and removing punctuation is applied on the answers before exact matching between the ground truth answers and BLIP-2's answer. One sidenote is that the OK-VQA dataset only had five annotators per question so they doubled each answer.
+
 ## Reproduction
 
 ### Results from original paper
