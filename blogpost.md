@@ -1,4 +1,4 @@
-# BLIP-2.3: Improving BLIP-2 by employing ChatGPT3 in context learning
+# BLIP-2.3: Improving BLIP-2 by employing GPT3 in context learning
 > Authors: J. Belleman, M.J.A. Bosch, D.G. van Dijk, E.R. Langezaal & T. Veenboer \
 > Deep Learning 2 - University of Amsterdam
 ## Table of contents
