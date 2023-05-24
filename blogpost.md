@@ -193,7 +193,7 @@ To gain a better understanding of the performance improvements achieved by our d
   <img src="./images/qualitative_main_approach.png">
 </p>
 
-As shown in the graph, both answers were succesfully imrpoved by GPT-3. In the left image example, GPT-3 effectively combined the visual information of the elephant in the image with the question that inquired about the appropriate term for someone handling that specific animal. Leveraging its extensive world-knowledge, GPT-3 correctly identified that a handler of elephants is called a "mahout." On the other hand, BLIP-2 failed to provide the correct answer to this question, potentially due to its limited understanding of real-world concepts such as the definition of a "mahout." Moving to the right image example, GPT-3 once again demonstrated its capability to improve the answer. By utilizing its knowledge that sheep are commonly found in New Zealand rather than Australia, GPT-3 accurately deduced the location of the depicted sheep. In contrast, BLIP-2 was unable to provide an accurate response to this question.
+As shown in the graph, both answers were succesfully improved by GPT-3. In the left image example, GPT-3 effectively combined the visual information of the elephant in the image with the question that inquired about the appropriate term for someone handling that specific animal. Leveraging its extensive world-knowledge, GPT-3 correctly identified that a handler of elephants is called a "mahout." On the other hand, BLIP-2 failed to provide the correct answer to this question, potentially due to its limited understanding of real-world concepts such as the definition of a "mahout." Moving to the right image example, GPT-3 once again demonstrated its capability to improve the answer. By utilizing its knowledge that sheep are commonly found in New Zealand rather than Australia, GPT-3 accurately deduced the location of the depicted sheep. In contrast, BLIP-2 was unable to provide an accurate response to this question.
 
 These instances exemplify how GPT-3's integration into our pipeline has enhanced the model's performance by leveraging its broad range of knowledge and contextual understanding. The successful improvements exhibited by GPT-3 in these examples highlight the significance of incorporating a deep learning model with rich world-knowledge into the visual question answering task.
 
@@ -220,16 +220,22 @@ We initially investigated the feasibility of utilizing GPT-3 to generate specifi
 
 
 ### Approach 2: Salient noun prompting
-Furthermore, we explored an alternative approach of letting GPT-3 pick the most salient noun within an OK-VQA question.  To accomplish this, we presented GPT-3 with a set of example questions paired with their corresponding target nouns, leveraging the in-context learning capabilities of GPT-3. The selected noun was then employed to construct a more context-specific prompt for BLIP-2, enabling it to generate an image caption that specifically highlights the relevant portion of the image necessary for answering the OK-VQA question. This method exhibited an improvement in the performance of the BLIP-2 FlanT5<sub>XL</sub> model on the OK-VQA dataset, with accuracy rising from 39.3% to 40.6%. However, despite this improvement, there were still instances where the performance of the model remained suboptimal.
+Furthermore, we explored an alternative approach of letting GPT-3 pick the most salient noun within an OK-VQA question.  To accomplish this, we presented GPT-3 with a set of example questions paired with their corresponding target nouns, leveraging the in-context learning capabilities of GPT-3. The selected noun was then employed to construct a more context-specific prompt for BLIP-2, enabling it to generate an image caption that specifically highlights the relevant portion of the image necessary for answering the OK-VQA question. This method, for which the pipeline is depicted in the following graph, exhibited an improvement in the performance of the BLIP-2 FlanT5<sub>XL</sub> model on the OK-VQA dataset, with accuracy rising from 39.3% to 40.6%. However, despite this improvement, there were still instances where the performance of the model remained suboptimal.
 
 <p align="center">
   <img src="./images/pipeline_ablation2.png">
 </p>
 
-Overall, it was determined that the simpler approach yielded the best performance, primarily due to BLIP-2's limited ability to generate accurate and truthful context when presented with highly specific prompts or questions. The misleading and inaccurate contextual information provided by BLIP-2 had a detrimental effect on GPT-3, leading to poor performance for both of the explored approaches.
+As mentioned, salient noun prompting did, on average, improve the accuracy on the OK-VQA dataset but overall did not outperform our more simpler approach. To understand this, we need to look at  a few example results from this approach.  The following graph again shows two examples from the OK-VQA dataset, highlighting the image and its corresponding question. The first set of orange text bars represent the answers generated by BLIP-2, whilst the first set of pruple text bars represents the salient noun that GPT-3 selected. This is followed by the second set of orange text bars, containing the noun-specific context that BLIP-2 generated. The final answers of GPT-3 is represented by the last set of purple text bars.
+
 <p align="center">
   <img src="./images/qualitative_noun_approach.png">
 </p>
+
+
+As shown in the graph, the left OK-VQA example was indeed improved by noun specific prompting, whilst the right OK-VQA example did in fact worsen. In the left image example, the GPT-3 selected noun prompt helps BLIP-2 look in the relevant region of the image, thereby providing a good context to which GPT-3 can succesfully answer the question. However, in the right image example, BLIP-2 mentions that this person would be a lazy person, thereby, trough incorrect context, directly leading GPT-3 towards a wrong answer to the question. These kind of examples show that BLIP-2 might sometimes confuse GPT-3 by providing too much incorrect context, which results in a lower overall accuracy score.
+
+Overall, it was determined that the simpler approach yielded the best performance, primarily due to BLIP-2's limited ability to generate accurate and truthful context when presented with highly specific prompts or questions. The misleading and inaccurate contextual information provided by BLIP-2 had a detrimental effect on GPT-3, leading to poor performance for both of the explored approaches.
 
 ## References
 [^1]: Brown, T. B., Mann, B., Ryder, N., Subbiah, M., Kaplan, J., Dhariwal, P., Amodei, D. (2020). Language models are few-shot learners.
