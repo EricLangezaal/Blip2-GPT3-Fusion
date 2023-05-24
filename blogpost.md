@@ -154,7 +154,6 @@ We do so by leveraging the GPT-3 API to incorporate in-context learning in a dis
          <td>three-shot</td>
          <td>40.62</td>
       </tr>
-    
        <tr>
          <td>ViT<sub>g</sub> Flant5<sub>XL</sub></td>
          <td>Answers to clarifying questions</td>
