@@ -174,6 +174,10 @@ Furthermore, we explored an alternative approach of letting GPT-3 pick the most 
 
 Overall, it was determined that the simpler approach yielded the best performance, primarily due to BLIP-2's limited ability to generate accurate and truthful context when presented with highly specific prompts or questions. The misleading and inaccurate contextual information provided by BLIP-2 had a detrimental effect on GPT-3, leading to poor performance for both of the explored approaches.
 
+<p align="center">
+  <img src="./images/qualitative_noun_approach.png">
+</p>
+
 ## References
 [^1]: Brown, T. B., Mann, B., Ryder, N., Subbiah, M., Kaplan, J., Dhariwal, P., Amodei, D. (2020). Language models are few-shot learners.
 
