@@ -213,10 +213,13 @@ We initially investigated the feasibility of utilizing GPT-3 to generate specifi
 Furthermore, we explored an alternative approach of letting GPT-3 pick the most salient noun within an OK-VQA question.  To accomplish this, we presented GPT-3 with a set of example questions paired with their corresponding target nouns, leveraging the in-context learning capabilities of GPT-3. The selected noun was then employed to construct a more context-specific prompt for BLIP-2, enabling it to generate an image caption that specifically highlights the relevant portion of the image necessary for answering the OK-VQA question. This method exhibited an improvement in the performance of the BLIP-2 FlanT5<sub>XL</sub> model on the OK-VQA dataset, with accuracy rising from 39.3% to 40.6%. However, despite this improvement, there were still instances where the performance of the model remained suboptimal.
 
 <p align="center">
-  <img src="./images/qualitative_noun_approach.png">
+  <img src="./images/pipeline_ablation2.png">
 </p>
 
 Overall, it was determined that the simpler approach yielded the best performance, primarily due to BLIP-2's limited ability to generate accurate and truthful context when presented with highly specific prompts or questions. The misleading and inaccurate contextual information provided by BLIP-2 had a detrimental effect on GPT-3, leading to poor performance for both of the explored approaches.
+<p align="center">
+  <img src="./images/qualitative_noun_approach.png">
+</p>
 
 ## References
 [^1]: Brown, T. B., Mann, B., Ryder, N., Subbiah, M., Kaplan, J., Dhariwal, P., Amodei, D. (2020). Language models are few-shot learners.
