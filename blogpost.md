@@ -1,4 +1,6 @@
 # BLIP-2.3: Improving BLIP-2 by employing ChatGPT3 in context learning
+> Authors: J. Belleman, M.J.A. Bosch, D.G. van Dijk, E.R. Langezaal & T. Veenboer \
+> Deep Learning 2 - University of Amsterdam
 
 The field of vision-language pre-training (VLP)[^2] has seen significant progress in recent years, with researchers employing pre-trained models of increasingly larger scale. However, to effectively leverage pre-trained unimodal models for vision-language tasks, it is essential to facilitate cross-modal alignment.
 
