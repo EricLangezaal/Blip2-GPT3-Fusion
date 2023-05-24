@@ -3,31 +3,34 @@
 > Deep Learning 2 - University of Amsterdam
 ## Table of contents
 
- - [Introduction](#introduction)
- - [Background Literature](#background-literature)
- - [Related Work](#related-work)
-   - [CLIP Descriptor Classification](#clip-descriptor-classification)
-   - [Expert Ensembles](#expert-ensembles)
-   - [PromptCap: Captioning Images Through Finetuning](#promptcap-captioning-images-through-finetuning)
- - [Strengths and Weaknesses of BLIP-2](#strengths-and-weaknesses-of-blip-2)
-   - [Strengths](#strengths)
-   - [Weaknesses](#weaknesses)
- - [Datasets](#datasets)
- - [Reproduction](#reproduction)
- - [Extending BLIP-2 with GPT-3](#extending-blip-2-with-gpt-3)
-   - [Problem description](#problem-description)
-   - [BLIP 2.3 Pipeline](#blip-23-pipeline)
- - [Results and Analysis](#results-and-analysis)
-   - [Quantitative Results](#quantitative-results)
-   - [Qualitative Results](#qualitative-results)
- - [Conclusion](#conclusion)
-   - [Future Work](#future-work)
-     - [Combining VQA and Captioning](#combining-vqa-and-captioning)
-     - [Larger LLM's for Baseline VQA](#larger-llms-for-baseline-vqa)
- - [Ablation studies](#ablation-studies)
-   - [Approach 1: Image specific VQA context](#approach-1-image-specific-vqa-context)
-   - [Approach 2: Salient noun prompting](#approach-2-salient-noun-prompting)
- - [References](#references)
+ * [Introduction](#introduction)
+  * [Background Literature](#background-literature)
+  * [Related Work](#related-work)
+    + [CLIP Descriptor Classification](#clip-descriptor-classification)
+    + [Expert Ensembles](#expert-ensembles)
+    + [PromptCap: Captioning Images Through Finetuning](#promptcap-captioning-images-through-finetuning)
+  * [Strengths and Weaknesses of BLIP-2](#strengths-and-weaknesses-of-blip-2)
+    + [Strengths](#strengths)
+    + [Weaknesses](#weaknesses)
+  * [Datasets](#datasets)
+  * [Reproduction](#reproduction)
+    + [Results from original paper](#results-from-original-paper)
+    + [Reproduced results](#reproduced-results)
+    + [Reproduction difficulties](#reproduction-difficulties)
+  * [Extending BLIP-2 with GPT-3](#extending-blip-2-with-gpt-3)
+    + [Problem description](#problem-description)
+    + [BLIP 2.3 Pipeline](#blip-23-pipeline)
+  * [Results and Analysis](#results-and-analysis)
+    + [Quantitative Results](#quantitative-results)
+    + [Qualitative Results](#qualitative-results)
+  * [Conclusion](#conclusion)
+    + [Future Work](#future-work)
+      - [Combining VQA and Captioning](#combining-vqa-and-captioning)
+      - [Larger LLM's for Baseline VQA](#larger-llms-for-baseline-vqa)
+  * [Ablation studies](#ablation-studies)
+    + [Approach 1: Image specific VQA context](#approach-1-image-specific-vqa-context)
+    + [Approach 2: Salient noun prompting](#approach-2-salient-noun-prompting)
+  * [References](#references)
 
 ## Introduction
 
@@ -76,13 +79,16 @@ The original BLIP-2 paper[^5] outlines 3 such datasets, which we also use for re
 While these datasets are manually curated using tools such as Amazon Mechanical Turk[^20], the label answers for the visual questions are from rather varying quality. In quite some cases some of the set of template answers for a question are blatantly wrong, such as answering "Africa" to the question "What south american country usually has this climate?". It is important to keep this mind, as the vast domain knowledge of GPT-3 can cause it give more precise/correct answers than the human annotaters, which are incorrectly counted as wrong because of this flawed gold standard. 
 
 ## Reproduction
+
+### Results from original paper
 The reproduction goal of our research focuses on a specific part of the results presented in the BLIP-2 paper. The original paper evaluates the performance of the BLIP-2 model on a variety of tasks such as visual question answering, image captioning and image-text retrieval. Since we aim in this research to enhance the in-context learning capabilities of BLIP-2 by combining its' strenghts with those of the GPT-3 LLM we are interested in the performance of models on the VQA task. The achieved results on this task of various models on the datasets mentioned in the previous section are presented in table 2 of the original paper and can be seen below.
 
 <p align="center">
   <img src="./images/reproduction_table.png">
 </p>
 
-The red boxes indicate the results that we attempted to reproduce in our work. We focus on the bottom section of the table since only the BLIP-2 model itself is within the scope of this research. For the frozen vision transformer, we only utilize the ViT-g (ref) model for reproduction since the ViT-L (ref) model was not available to us. As for the frozen large language models, we include both the OPT (ref) as well as the FlanT5 (ref) model in our reproduction study. We test for both models only their smaller variants, namely the 2.7B and XL versions for OPT and FlanT5 respectively, since our computational resources limit us to not use their larger counterparts (6.7B and XXL variants).
+### Reproduced results
+The red boxes indicate the results that we attempted to reproduce in our work. We focus on the bottom section of the table since only the BLIP-2 model itself is within the scope of this research. For the frozen vision transformer, we only utilize the pretrained model with the ViT-G[^22] encoder for reproduction, since the BLIP-2 pretrained model with the ViT-L encoder from CLIP[^21] was not available to us. As for the frozen large language models, we include both the OPT[^23] as well as the FlanT5[^24] model in our reproduction study. We test for both models only their smaller variants, namely the 2.7B and XL versions for OPT and FlanT5 respectively, since our computational resources limit us to not use their larger counterparts (6.7B and XXL variants).
 
 Our reproduction results are presented in the table below. Based on the results in the table, we can state that the accuracies of the OPT and FlanT5 BLIP-2 model variants on the VQA task are succesfully reproducable.
 
@@ -97,13 +103,13 @@ Our reproduction results are presented in the table below. Based on the results 
    </thead>
    <tbody>
       <tr>
-         <td>BLIP-2 ViT<sub>g</sub> OPT<sub>2.7B</sub></td>
+         <td>BLIP-2 ViT-G OPT<sub>2.7B</sub></td>
          <td>53.4</td>
          <td>31.8</td>
          <td>34.6</td>
       </tr>
       <tr>
-         <td>BLIP-2 ViT<sub>g</sub> FlanT5<sub>XL</sub></td>
+         <td>BLIP-2 ViT-G FlanT5<sub>XL</sub></td>
          <td>61.8</td>
          <td>39.3</td>
          <td>43.9</td>
@@ -111,6 +117,7 @@ Our reproduction results are presented in the table below. Based on the results 
    </tbody>
 </table>
   
+### Reproduction difficulties
 The LAVIS library by Salesforce [^17] provides an out-of-the-box approach to evaluating BLIP-2 with various different frozen Language Models. Through a single python file, evaluate.py, an end-user can easily configure which model that he wants to evaluate. The variety of LMs all come with their respective configuration file. Moreover, it supplies python scripts for downloading the different datasets that can be used with BLIP.  
 
 Nevertheless, the reproduction of BLIP-2 posed a few issues. First of all, the authors mention in the paper that their prompt template differs for OPT and FlanT5. The prompt for OPT is supposedly 'Question: {}. Answer:', while FlanT5's prompt should be 'Question: {}. Short answer:'. However, we found in the LAVIS repository - maintained by the authors of BLIP2 - that the prompt is identical for both models, namely 'Question: {}. Short answer'. Furthermore, the method of retrieval for the FlanT5 model in the library ensures that it can only be used with the datatype bfloat16 (Brain Floating Point) [^18]. The bfloat16 dtype has been introduced by the Google Brain team to achieve higher performance with less memory requirements than a standard float32. Modern-day GPUs have the capability of performing matrix multiplications with the bfloat16; however, older GPUs do not always possess this ability. The GPU provided by our cluster was not able to execute the evaluation script with bfloat16. Therefore, we had to add and register the FlanT5 model with 8-bit integer weights in a separate file. Fortunately, LAVIS supplies the user with the effortless extensibility of registering new models by adding a single line.
@@ -261,10 +268,18 @@ International conference on machine learning* (pp. 12888–12900).
 
 [^16]: Hu, Y., Hua, H., Yang, Z., Shi, W., Smith, N. A., & Luo, J. (2022). PromptCap: Prompt-Guided Task-Aware Image Captioning. ArXiv Preprint ArXiv:2211. 09699.
 
-[^17]: Li, D., Li, J., Le, H., Wang, G., Savarese, S., & Hoi, S. C. H. (2022). LAVIS: A Library for Language-Vision Intelligence. ArXiv [Cs.CV]. Retrieved from http://arxiv.org/abs/2209.09019.
+[^17]: Li, D., Li, J., Le, H., Wang, G., Savarese, S., & Hoi, S. C. H. (2022). LAVIS: A Library for Language-Vision Intelligence.
 
 [^18]: N. Burgess, J. Milanovic, N. Stephens, K. Monachopoulos and D. Mansell, "Bfloat16 Processing for Neural Networks," 2019 IEEE 26th Symposium on Computer Arithmetic (ARITH), Kyoto, Japan, 2019, pp. 88-91, doi: 10.1109/ARITH.2019.00022.
 
-[^19]: Wolf, T., Debut, L., Sanh, V., Chaumond, J., Delangue, C., Moi, A., … Rush, A. M. (2020, October). Transformers: State-of-the-Art Natural Language Processing. Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing: System Demonstrations, 38–45. Retrieved from https://www.aclweb.org/anthology/2020.emnlp-demos.6.
+[^19]: Wolf, T., Debut, L., Sanh, V., Chaumond, J., Delangue, C., Moi, A., … Rush, A. M. (2020, October). Transformers: State-of-the-Art Natural Language Processing. Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing: System Demonstrations, 38–45.
 
 [^20]: Crowston, K. (2012). Amazon Mechanical Turk: A Research Tool for Organizations and Information Systems Scholars. In: Bhattacherjee, A., Fitzgerald, B. (eds) Shaping the Future of ICT Research. Methods and Approaches. IFIP Advances in Information and Communication Technology, vol 389. Springer, Berlin, Heidelberg.
+
+[^21]: Radford, A., Kim, J. W., Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., Sastry, G., Askell, A., Mishkin, P., Clark, J., et al. (2021). Learning transferable visual models from natural language supervision.
+
+[^22]: Fang, Y., Wang, W., Xie, B., Sun, Q., Wu, L., Wang, X., Huang, T., Wang, X., and Cao, Y. Eva. (2022). Exploring the limits of masked visual representation learning at scale. arXiv preprint arXiv:2211.07636.
+
+[^23]: Zhang, S., Roller, S., Goyal, N., Artetxe, M., Chen, M., Chen, S., Dewan, C., Diab, M. T., Li, X., Lin, X. V., Mihaylov, T., Ott, M., Shleifer, S., Shuster, K., Simig, D., Koura, P. S., Sridhar, A., Wang, T., and Zettlemoyer, L. (2022). OPT: open pre-trained transformer language models. arXiv preprint arXiv:2205.01068.
+
+[^24]: Chung, H. W., Hou, L., Longpre, S., Zoph, B., Tay, Y., Fedus, W., Li, E., Wang, X., Dehghani, M., Brahma, S., Webson, A., Gu, S. S., Dai, Z., Suzgun, M., Chen, X., Chowdhery, A., Narang, S., Mishra, G., Yu, A., Zhao, V. Y., Huang, Y., Dai, A. M., Yu, H., Petrov, S., Chi, E. H., Dean, J., Devlin, J., Roberts, A., Zhou, D., Le, Q. V., and Wei, J. (2022). Scaling instruction-finetuned language models. arXiv preprint arXiv:2210.11416.
