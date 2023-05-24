@@ -131,27 +131,34 @@ We do so by leveraging the GPT-3 API to incorporate in-context learning in a dis
    </thead>
    <tbody>
       <tr>
-         <td>ViT<sub>g</sub> FlanT5<sub>XL + GPT-3.5 turbo</sub></td>
+        <td>ViT<sub>g</sub> FlanT5<sub>XL</sub></td>
          <td>Photo description</td>
          <td>three-shot</td>
-         <td>x</td>
+        <td><b>44.37</b></td>
       </tr>
        <tr>
-         <td>ViT<sub>g</sub> FlanT5<sub>XL + GPT-3.5 turbo</sub></td>
+         <td>ViT<sub>g</sub> FlanT5<sub>XL</sub></td>
          <td>Photo description</td>
          <td>zero-shot</td>
-         <td>x</td>
+         <td>42.91</td>
+      </tr>
+          <tr>
+         <td>ViT<sub>g</sub> Flant5<sub>XL</sub> COCO finetuned</td>
+         <td>Photo description</td>
+         <td>three-shot</td>
+         <td>41.62</td>
       </tr>
       <tr>
-         <td>ViT<sub>g</sub> FlanT5<sub>XL + GPT-3.5 turbo</sub></td>
+         <td>ViT<sub>g</sub> FlanT5<sub>XL</sub></td>
          <td>Photo description + noun description</td>
          <td>three-shot</td>
-         <td>x</td>
+         <td>40.62</td>
       </tr>
+    
        <tr>
-         <td>ViT<sub>g</sub> Flant5<sub>XL COCO finetuned + GPT-3.5 turbo</sub></td>
-         <td>Photo description</td>
-         <td>3-shot</td>
+         <td>ViT<sub>g</sub> Flant5<sub>XL</sub></td>
+         <td>Answers to clarifying questions</td>
+         <td>zero-shot</td>
          <td>x</td>
       </tr>
    </tbody>
