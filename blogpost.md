@@ -12,11 +12,13 @@
 - [Extending BLIP-2 with GPT3](#extending-blip-2-with-gpt3)
   - [Problem description](#problem-description)
   - [BLIP 2.3 Pipeline](#blip-23-pipeline)
-  - [Unsuccesful Explored approaches](#unsuccesful-explored-approaches)
-    - [Approach 1: Image specific VQA context](#approach-1-image-specific-vqa-context)
-    - [Approach 2: Salient noun prompting](#approach-2-salient-noun-prompting)
 - [Results and Analysis](#results-and-analysis)
+  - [Qualitative Results](#qualitative-results)
+  - [Quantitative Results](#quantitative-results)
 - [Conclusion](#conclusion)
+- [Ablation studies](#ablation-studies)
+  - [Approach 1: Image specific VQA context](#approach-1-image-specific-vqa-context)
+  - [Approach 2: Salient noun prompting](#approach-2-salient-noun-prompting)
 - [References](#references)
 
 ## Introduction
@@ -118,7 +120,13 @@ We do so by leveraging the GPT-3 API to incorporate in-context learning in a dis
 
 ## Results and Analysis
 
-## Quantitative results
+### Qualitative Results
+
+<p align="center">
+  <img src="./images/qualitative_main_approach.png">
+</p>
+
+### Quantitative Results
 
 <table align="center">
    <thead>
