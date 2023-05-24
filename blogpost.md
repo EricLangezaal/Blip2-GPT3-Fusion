@@ -1,4 +1,4 @@
-# BLIP-2.3: Improving BLIP-2's OK-VQA performance by employing GPT-3 in context learning
+# BLIP-2.3: Improving BLIP-2 OKVQA performance with GPT-3's world knowledge and in-context learning capabilities
 > Authors: J. Belleman, M.J.A. Bosch, D.G. van Dijk, E.R. Langezaal & T. Veenboer \
 > Deep Learning 2 - University of Amsterdam
 ## Table of contents
