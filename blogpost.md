@@ -118,6 +118,45 @@ We do so by leveraging the GPT-3 API to incorporate in-context learning in a dis
 
 ## Results and Analysis
 
+## Quantitative results
+
+<table align="center">
+   <thead>
+      <tr>
+         <th>Models</th>
+         <th>Provided context of image?</th>
+         <th>GPT-3: Few-shot or zero-shot?</th>
+         <th>OK-VQA (test)</th>
+      </tr>
+   </thead>
+   <tbody>
+      <tr>
+         <td>ViT<sub>g</sub> FlanT5<sub>XL + GPT-3.5 turbo</sub></td>
+         <td>Photo description</td>
+         <td>three-shot</td>
+         <td>x</td>
+      </tr>
+       <tr>
+         <td>ViT<sub>g</sub> FlanT5<sub>XL + GPT-3.5 turbo</sub></td>
+         <td>Photo description</td>
+         <td>zero-shot</td>
+         <td>x</td>
+      </tr>
+      <tr>
+         <td>ViT<sub>g</sub> FlanT5<sub>XL + GPT-3.5 turbo</sub></td>
+         <td>Photo description + noun description</td>
+         <td>three-shot</td>
+         <td>x</td>
+      </tr>
+       <tr>
+         <td>ViT<sub>g</sub> Flant5<sub>XL COCO finetuned + GPT-3.5 turbo</sub></td>
+         <td>Photo description</td>
+         <td>3-shot</td>
+         <td>x</td>
+      </tr>
+   </tbody>
+</table>
+
 ## Conclusion
 
 ## Ablation studies
