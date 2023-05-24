@@ -6,16 +6,27 @@
 - [Introduction](#introduction)
 - [Background Literature](#background-literature)
 - [Related Work](#related-work)
+  * [CLIP Descriptor Classification](#clip-descriptor-classification)
+  * [Expert Ensembles](#expert-ensembles)
+  * [PromptCap: Captioning Images Through Finetuning](#promptcap--captioning-images-through-finetuning)
 - [Strengths and Weaknesses of BLIP-2](#strengths-and-weaknesses-of-blip-2)
+  * [Strengths](#strengths)
+  * [Weaknesses](#weaknesses)
 - [Datasets](#datasets)
 - [Reproduction](#reproduction)
 - [Extending BLIP-2 with GPT3](#extending-blip-2-with-gpt3)
-  - [Problem description](#problem-description)
-  - [BLIP 2.3 Pipeline](#blip-23-pipeline)
+  * [Problem description](#problem-description)
+  * [BLIP 2.3 Pipeline](#blip-23-pipeline)
 - [Results and Analysis](#results-and-analysis)
   - [Qualitative Results](#qualitative-results)
   - [Quantitative Results](#quantitative-results)
 - [Conclusion](#conclusion)
+  * [Future Work](#future-work)
+    + [Combining VQA and Captioning](#combining-vqa-and-captioning)
+    + [Larger LLM's for Baseline VQA](#larger-llm-s-for-baseline-vqa)
+- [Ablation studies](#ablation-studies)
+  * [Approach 1: Image specific VQA context](#approach-1--image-specific-vqa-context)
+  * [Approach 2: Salient noun prompting](#approach-2--salient-noun-prompting)
 - [Ablation studies](#ablation-studies)
   - [Approach 1: Image specific VQA context](#approach-1-image-specific-vqa-context)
   - [Approach 2: Salient noun prompting](#approach-2-salient-noun-prompting)
@@ -37,16 +48,21 @@ We are focusing on the subdomain of artificial intelligence known as multi-modal
 
 ## Related Work
 
+### CLIP Descriptor Classification
 Vondrick and Menon[^13] present a method to enhance zero-shot classification performance of the CLIP[^14] on various datasets such as ImageNet and EuroSAT. Their alteration to CLIP consists of producing a set of different descriptors for a given category. For the classification of an arbitrary image, the embeddings of the image are compared with the embeddings of these descriptors. The class with the highest image-versus-descriptor similarity score is chosen as the most probable category for the image. Unfortunately, their work does not extend to the domain of open-ended question answering. There is no prospect of generating descriptors for certain answers because the set of possible answers a model can give is infinite.
 
+### Expert Ensembles
 In a recent paper, Liu et al. [^15] showcase a model that leverages an ensemble of pre-trained expert models to create several vision-language capabilities. Their full model, Prismer, relies on the efficiency of other models that have been trained to be state-of-the-art in their respective modality. For example, the set of expert models can include a variety of networks that examine objects within an image, that can do Optical Character Recognition (OCR) and are capable of distinguishing the various parts of an image (segmentation). The combined information these models are then processed by a smaller sized network which translates the information into text encodings; this is alike the Q-Former's functionality in BLIP-2. Akin to BLIP, the smaller model then proceeds to pass the encodings to a language decoder that outputs a prediction, caption or answers a visual question. It might be interesting to explore the possibilities of adding such ensembles of experts to the vision stage of BLIP along with the suggested adjustments in this paper.
 
+### PromptCap: Captioning Images Through Finetuning
 Hu et al. [^16] demonstrated that the world knowledge of GPT-3 can be conveniently taken advantage of with their question-aware captioning model PromptCap. The PromptCap model is a small trainable model which generates context for the question GPT answers at a later stage. For instance, a sample question for an image of a microscope could be: 'Who invented this apparatus?'. PromptCap then generates a small caption belonging to the image which could be along the lines of: 'This is a researcher looking through a microscope'. Thereafter, GPT-3 is prompted with the combination of the question and caption. The question and caption are sufficient for GPT-3 to answer: 'A Dutch spectacle maker named Zacharias Janssen'. The PromptCap model is similar to BLIP-2 to a high degree. Instead of applying the power of a pre-trained Vision Model (VM), PromptCap transforms the image to text immediately by finetuning to the dataset. Our research builds on the usage of GPT-3 in related fashion. However rather than fine-tuning, we utilize GPT-3's in-context learning capabilities by answering questions with few-shot learning based on BLIP-2's image captions. 
 
 ## Strengths and Weaknesses of BLIP-2
 
+### Strengths
 BLIP-2 is designed with a modular framework; both the VM and LM are interchangeable frozen models. The future will likely see more lightweight or powerful models, which can be employed with BLIP-2 by simply re-training the Q-Former. To illustrate, if OpenAI decides to release GPT-3 at a later point in time, the Q-Former can easily be adjusted to function in a pipeline with GPT-3 as frozen LM. On top of that, the Q-Former itself is a relatively small neural network that can be trained without the resources that are required for present-day LLMs. This opens up areas of research for less affluent institutions or companies that are otherwise out-of-scope. 
 
+### Weaknesses
 Nevertheless, BLIP-2 has a few significant drawbacks in terms of efficiency. Firstly, BLIP-2 currently does not support in-context learning with the standard setup. The authors ascribe this to the fact that the model has been trained on a dataset which solely contains single image-text data pairs [^5]. They also address this by stating that they intend to train the model on a different, more expressive dataset in subsequent research. Moreover, BLIP-2 often has an inadequate response to questions that test the respondent's world knowledge. An example of such a question could be about the logo of a well-known company. BLIP-2 frequently does not recognize logos or brand marks because it is trained to dissect purely visual attributes of an image. Models that do have a vast source of world knowledge are usually closed source or too large to be deployed on a low-cost configuration. The research of this blogpost specifically fixates on interjecting GPT-3 into the workflow of BLIP-2 to increase the world knowledge of the model in its entirety. We intend to do so by directly letting GPT-3 reason about the visual cues it receives from the BLIP-2 pipeline.
 
 ## Datasets
@@ -69,7 +85,7 @@ The reproduction goal of our research focuses on a specific part of the results 
   <img src="./images/reproduction_table.png">
 </p>
 
-The red boxes indicate the results that we attempted to reproduce in our work. We focus on the bottom section of the table since only the BLIP-2 model itself is within the scope of this research. For the frozen vision transformer, we only utilize the ViT-g (ref) model for reproduction since the ViT-L (ref) model was not available to us. As for the frozen large language models, we include both the OPT (ref) as well as the FlanT5 (ref) model in our reproduction study. We test for both models only their smaller variants, namely the 2.7B and XL versions for OPT and FlanT5 respectively, since our compute resources limit us to not use their larger counterparts (6.7B and XXL variants).
+The red boxes indicate the results that we attempted to reproduce in our work. We focus on the bottom section of the table since only the BLIP-2 model itself is within the scope of this research. For the frozen vision transformer, we only utilize the ViT-g (ref) model for reproduction since the ViT-L (ref) model was not available to us. As for the frozen large language models, we include both the OPT (ref) as well as the FlanT5 (ref) model in our reproduction study. We test for both models only their smaller variants, namely the 2.7B and XL versions for OPT and FlanT5 respectively, since our computational resources limit us to not use their larger counterparts (6.7B and XXL variants).
 
 Our reproduction results are presented in the table below. Based on the results in the table, we can state that the accuracies of the OPT and FlanT5 BLIP-2 model variants on the VQA task are succesfully reproducable.
 
@@ -179,6 +195,16 @@ These instances exemplify how GPT-3's integration into our pipeline has enhanced
 
 ## Conclusion
 
+### Future Work
+
+#### Combining VQA and Captioning
+
+This study has shown that the utilization of straightforward captions surpasses all other methods of inference in the BLIP-2.3 pipeline. Currently, the captions are generated by the FlanT5 model finetuned for questioning. It might be interesting to substitute this model with the FlanT5 that has been finetuned on the task of captioning. Nevertheless, the FlanT5 model for question answering is essential for correcting GPT-3 in cases where it is uncertain. Therefore, the suggestion is to devise a pipeline where both models are incorporated to maximize GPT-3's potential. Due to the time constraint of our current course and a limitation of computational resources, we were not able to explore this combination to its full extent.
+
+#### Larger LLM's for Baseline VQA
+
+Throughout this blogpost, the performed research revolved around the usage of FlanT5<sub>XL</sub>. In [Reproduction](#reproduction) we highlighted the fact that the original BLIP-2 paper contained larger and more effective models for both vision encoding and text generation. However, the access to computational resources at an academic institution is unfortunately limited; we were therefore unable to load more substantial models onto the available GPU's. We theorize that having a stronger baseline for question answering in the form of FlanT5<sub>XXL</sub> or OPT<sub>6.7</sub> would have a significant impact on performance of the BLIP-2.3 pipeline. Moreover, the first [approach](#approach-1-image-specific-vqa-context) in the ablation studies might be effective if the underlying question-answering model is more proficient at providing descriptive answers to GPT's questions. Lastly, the quality of captions could also possibly see extensive improvement by employing a larger LLM finetuned to captioning.
+
 ## Ablation studies
 In this section, we present a comprehensive analysis of two alternative methods that were employed and their corresponding outcomes and challenges encountered. The purpose of these ablation studies was to evaluate the effectiveness and limitations of different approaches in addressing the problem at hand. 
 
@@ -193,10 +219,13 @@ We initially investigated the feasibility of utilizing GPT-3 to generate specifi
 Furthermore, we explored an alternative approach of letting GPT-3 pick the most salient noun within an OK-VQA question.  To accomplish this, we presented GPT-3 with a set of example questions paired with their corresponding target nouns, leveraging the in-context learning capabilities of GPT-3. The selected noun was then employed to construct a more context-specific prompt for BLIP-2, enabling it to generate an image caption that specifically highlights the relevant portion of the image necessary for answering the OK-VQA question. This method exhibited an improvement in the performance of the BLIP-2 FlanT5<sub>XL</sub> model on the OK-VQA dataset, with accuracy rising from 39.3% to 40.6%. However, despite this improvement, there were still instances where the performance of the model remained suboptimal.
 
 <p align="center">
-  <img src="./images/qualitative_noun_approach.png">
+  <img src="./images/pipeline_ablation2.png">
 </p>
 
 Overall, it was determined that the simpler approach yielded the best performance, primarily due to BLIP-2's limited ability to generate accurate and truthful context when presented with highly specific prompts or questions. The misleading and inaccurate contextual information provided by BLIP-2 had a detrimental effect on GPT-3, leading to poor performance for both of the explored approaches.
+<p align="center">
+  <img src="./images/qualitative_noun_approach.png">
+</p>
 
 ## References
 [^1]: Brown, T. B., Mann, B., Ryder, N., Subbiah, M., Kaplan, J., Dhariwal, P., Amodei, D. (2020). Language models are few-shot learners.
