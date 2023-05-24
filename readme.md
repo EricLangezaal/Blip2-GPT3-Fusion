@@ -1,4 +1,4 @@
-# BLIP-2.3: Improving BLIP-2 OKVQA performance with GPT-3's world knowledge and in-context learning capabilities
+# BLIP-2.3: Improving BLIP-2's OKVQA performance with GPT-3's world knowledge and in-context learning capabilities
 This GitHub repository details all our code to reproduce some of the original experiments in the paper "BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models" 
 as well as to execute and demonstrate our own additions. Since SalesForce has packaged the LAVIS repository such that it can be installed as Pip package, we have not cloned their entire codebase in this repository.
 We do need to build the LAVIS repository from source, since they updated the master branch regarding a GitHub issue (re)raised by us, which is not yet included in the PyPI version.
