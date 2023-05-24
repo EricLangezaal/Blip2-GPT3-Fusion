@@ -1,8 +1,8 @@
-# Improving BLIP-2 by employing GPT-3 in context learning
-This GitHub repository details all our code to both reproduce some of the original experiments in the paper "BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models" 
-as well our additions. Since SalesForce has packaged the LAVIS repository such that it can be installed as Pip package, we have not cloned their code in this repository.
+# BLIP-2.3: Improving BLIP-2's OKVQA performance by employing GPT-3 in context learning
+This GitHub repository details all our code to reproduce some of the original experiments in the paper "BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models" 
+as well as to execute and demonstrate our own additions. Since SalesForce has packaged the LAVIS repository such that it can be installed as Pip package, we have not cloned their entire codebase in this repository.
 We do need to build the LAVIS repository from source, since they updated the master branch regarding a GitHub issue (re)raised by us, which is not yet included in the PyPI version.
-As such we have only included the minimal required code to reproduce two of their experiments (see the notebook and blogspot for details). 
+As such we have only included the minimal required code to reproduce their experiments (see the blogspot for details on the experiments reproduced). 
 
 ## 1. Environment installation
 To get conflicting dependencies to function we needed to modify the environment more than a simple YAML file would allow.
