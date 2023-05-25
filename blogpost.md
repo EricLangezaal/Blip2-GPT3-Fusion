@@ -212,6 +212,8 @@ These instances exemplify how GPT-3's integration into our pipeline has enhanced
 
 ## Conclusion
 
+This study demonstrated that GPT-3's in-context learning capabilities can help to improve the performance of BLIP-2 on the OK-VQA dataset. This has been accomplished by prompting GPT-3 in an efficient few-shot manner whilst supplying it with limited information about an image. The introduction of GPT-3 into the BLIP-2 pipeline has shown that inaccuracies in terms of world knowledge in a smaller-sized LLM can be resolved by invoking a larger, more well-rounded model. Furthermore, we have shown that prompting GPT-3 zero-shot is worse than few-shot. This reinforces the fact that GPT-3 has access to in-context learning to improve upon itself. 
+
 ### Future Work
 
 #### Combining VQA and Captioning
