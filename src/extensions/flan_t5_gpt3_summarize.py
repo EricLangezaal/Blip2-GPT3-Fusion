@@ -17,7 +17,7 @@ from lavis.models.blip2_models.blip2 import Blip2Base, disabled_train
 from lavis.models.blip2_models.modeling_t5 import T5Config, T5ForConditionalGeneration
 
 import openai
-from openai.error import RateLimitError, APIError
+from openai.error import RateLimitError, APIError, ServiceUnavailableError
 
 from extensions.gpt_utils import *
 from reproducing.flan_t5_int8 import Blip2T5int8
@@ -158,7 +158,7 @@ class FlanGPTSummarize(Blip2T5int8):
             ################ ADDED PART ######################
             return gpt_summarised_batch
         
-        except (RateLimitError, APIError):
+        except (RateLimitError, APIError, ServiceUnavailableError):
             time.sleep(5)
             return self.predict_answers(
                 samples,

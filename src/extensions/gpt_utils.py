@@ -32,7 +32,7 @@ def gpt_generate_questions(input_questions, temperature=0.7):
        parsed_questions = []
        for q in questions:
           match = re.search("[a-zA-Z].*", q)
-          if match:
+          if match is not None:
              parsed_questions.append(match.group())
           else:
              parsed_questions.append(q)
