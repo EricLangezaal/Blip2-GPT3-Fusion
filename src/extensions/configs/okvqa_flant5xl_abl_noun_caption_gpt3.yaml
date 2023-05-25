@@ -1,15 +1,11 @@
- # Copyright (c) 2022, salesforce.com, inc.
- # All rights reserved.
- # SPDX-License-Identifier: BSD-3-Clause
- # For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
-
-# This configuration will not run on a single Lisa cluster GPU
-
 model:
-  arch: blip2_t5_int8
-  model_type: pretrain_flant5xxl
+  arch: "blip2_t5_gpt3_noun_caption"
+  model_type: pretrain_flant5xl
   use_grad_checkpoint: False
-
+  
+  # replace with your own OpenAI key
+  openai_api_key: "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"
+  verbose: True
   # for OKVQA evaluation
   apply_lemmatizer: True
 
@@ -30,7 +26,7 @@ run:
   task: vqa
   # optimization-specific
   batch_size_train: 16
-  batch_size_eval: 16
+  batch_size_eval: 8
   num_workers: 4
 
   # inference-specific
@@ -38,16 +34,16 @@ run:
   min_len: 1
   num_beams: 5
   inference_method: "generate"
-  prompt: "Question: {} Short answer:"
+  prompt: "{}"
 
   seed: 42
-  output_dir: "output/OKVQA/flan5XXL/"
+  output_dir: "output/OKVQA/flan5xl_ablation_gpt3/"
 
   evaluate: True
   test_splits: ["test"]
 
   # distribution-specific
   device: "cuda"
-  world_size: 2
+  world_size: 1
   dist_url: "env://"
   distributed: True

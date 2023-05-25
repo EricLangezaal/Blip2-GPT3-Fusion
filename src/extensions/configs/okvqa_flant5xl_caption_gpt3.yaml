@@ -1,8 +1,9 @@
 model:
   arch: "blip2_t5_gpt3_caption"
-  model_type: caption_coco_flant5xl
+  model_type: pretrain_flant5xl
   use_grad_checkpoint: False
 
+  # replace with your own OpenAI key
   openai_api_key: "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"
   verbose: True
   # for OKVQA evaluation

@@ -1,9 +1,3 @@
-"""
- Copyright (c) 2023, salesforce.com, inc.
- All rights reserved.
- SPDX-License-Identifier: BSD-3-Clause
- For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
-"""
 import logging
 
 import torch
@@ -22,8 +16,8 @@ from openai.error import RateLimitError, APIError, ServiceUnavailableError
 from extensions.gpt_utils import *
 from reproducing.flan_t5_int8 import Blip2T5int8
 
-@registry.register_model("blip2_t5_gpt3_summarize")
-class FlanGPTSummarize(Blip2T5int8):
+@registry.register_model("blip2_t5_gpt3_questions")
+class FlanGPTQuestions(Blip2T5int8):
 
 
     def __init__(
@@ -106,7 +100,6 @@ class FlanGPTSummarize(Blip2T5int8):
             if self._apply_lemmatizer:
                 output_text = self._lemmatize(output_text)
             
-            #################### ADDED PART  ########################################
             # GENERATION OF OBJECT DESCRIPTION
             gpt_questions = gpt_generate_questions(text_input)
 
@@ -125,11 +118,9 @@ class FlanGPTSummarize(Blip2T5int8):
                     attention_mask=encoder_atts_new,
                     do_sample=False,
                     num_beams=num_beams,
-                    # TODO: OPTIMISE SETTINGS FOR PHOTO DESCRIPTION!
                     max_new_tokens=15,
                     min_length=1,
-                    repetition_penalty = 1.5,
-                    # -1 (default) gives 1 word answers, '2' gives sentences
+                    repetition_penalty=1.5,
                     length_penalty=1,
                 )
                 answer_to_gpt_question = self.t5_tokenizer.batch_decode(
@@ -153,9 +144,9 @@ class FlanGPTSummarize(Blip2T5int8):
                     print("Original question: ", org_question)
                     print("Original answer: ", org_answer)
                     print("GPT generated questions:", questions)
-                    print("THe answers to those GPT questions:", answers)
-                    print("FINAL answer: ", gpt_summarized, "\n")        
-            ################ ADDED PART ######################
+                    print("The answers to those GPT questions:", answers)
+                    print("Final answer: ", gpt_summarized, "\n")        
+            
             return gpt_summarised_batch
         
         except (RateLimitError, APIError, ServiceUnavailableError):

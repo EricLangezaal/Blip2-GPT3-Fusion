@@ -60,9 +60,9 @@ python -m torch.distributed.run --nproc_per_node=1 evaluate.py --cfg-path reprod
 ```
 Where `<experiment_config>` is the name of one of the experiment configuration files for the respective model and dataset.
 
-In a similar manner, it is possible to evaluate our custom pipeline on OKVQA. Our ablation study which let GPT-3 pick three questions for BLIP-2 can also be tested separately using its configuration file. To evaluate our final pipeline on the OKVQA test set:
+In a similar manner, it is possible to evaluate our custom pipeline on OKVQA. To evaluate our final pipeline on the OKVQA test set:
 ```bash
 cd src/
 python -m torch.distributed.run --nproc_per_node=1 evaluate.py --cfg-path extensions/configs/okvqa_flant5xl_caption_gpt3.yaml
 ```
-There is also a Slurm job file available called `run_eval.job`, make sure to also modify the configuration file path if applicable.
+There is also a Slurm job file available called `run_eval.job`. Our two main ablation studies can also be tested separately using their configuration file. Ablation approach 1, where GPT-3 picks three questions for BLIP-2 to answer, to then better answer the original question is detailed in `okvqa_flant5xl_abl_questions_gpt3.yaml`. The configuration file for the second ablation where GPT-3 picks the most important noun from the question is called `okvqa_flant5xl_abl_noun_caption_gpt3.yaml`. When using the job file, make sure to also modify the configuration file path if applicable.

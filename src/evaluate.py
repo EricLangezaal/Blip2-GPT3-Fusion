@@ -27,7 +27,8 @@ from lavis.runners.runner_base import RunnerBase
 from lavis.tasks import *
 
 from reproducing.flan_t5_int8 import Blip2T5int8
-from extensions.flan_t5_gpt3_summarize import FlanGPTSummarize
+from extensions.flan_t5_gpt3_questions import FlanGPTQuestions
+from extensions.flan_t5_gpt3_noun_caption import FlanGPTNounCaption
 from extensions.flan_t5_gpt3_caption import FlanGPTCaption
 
 def parse_args():
