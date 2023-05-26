@@ -1,6 +1,6 @@
 # BLIP-2.3: Improving BLIP-2's OK-VQA performance with GPT-3's world knowledge and in-context learning capabilities
-This GitHub repository details all our code to reproduce some of the original experiments in the paper "BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models" 
-as well as to execute and demonstrate our own additions. Since SalesForce has packaged the LAVIS repository such that it can be installed as Pip package, we have not cloned their entire codebase in this repository.
+This GitHub repository contains our code to reproduce some of the original experiments in the paper "BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models" 
+as well as to execute and demonstrate our own additions. Since SalesForce has packaged the LAVIS repository such that it can be installed as a Pip package, we have not cloned their entire codebase in this repository.
 We do need to build the LAVIS repository from source, since they updated the master branch regarding a GitHub issue (re)raised by us, which is not yet included in the PyPI version.
 As such we have only included the minimal required code to reproduce their experiments (see the blogspot for details on the experiments reproduced). 
 
@@ -39,9 +39,9 @@ cp libbitsandbytes_cuda<your cuda version>.so libbitsandbytes_cpu.so
 ```
 
 ## 2. Downloading datasets
-By default the Lavis library is able to download the VQAV2, OKVQA and GQA datasets whenever it needs them. It will however attempt to do so in a root level folder, which will often lead to permission issues (for example on the Lisa cluster). As such, we created custom scripts to download all datasets to legal locations in our ecosystem.
+By default the Lavis library is able to download the VQAV2, OK-VQA and GQA datasets whenever it needs them. It will however attempt to do so in a root level folder, which will often lead to permission issues (for example on the Lisa cluster). As such, we created custom scripts to download all datasets to legal locations in our filesystem.
 
-To download the VQA/OKVQA dataset (which share the same images), please move to the `src/data/` folder and run:
+To download the VQAV2/OK-VQA dataset (which share the same images), please move to the `src/data/` folder and run:
 ```bash
 download_coco.py
 ```
@@ -53,16 +53,16 @@ download_gqa.py
 Since these downloads likely take over 15 minutes, you can also schedule `run_dataset.job` from that folder.
 
 ## 3. Rerunning an evaluation experiment
-Using our codebase reproducing an experiment from the original BLIP-2 paper on VQAV2, OKVQA and GQA can be achieved by running:
+With our codebase reproducing an experiment from the original BLIP-2 paper on VQAV2, OK-VQA and GQA can be achieved by running:
 ```bash
 cd src/
 python -m torch.distributed.run --nproc_per_node=1 evaluate.py --cfg-path reproducing/configs/<experiment_config>.yaml 
 ```
-Where `<experiment_config>` is the name of one of the experiment configuration files for the respective model and dataset.
+Where `<experiment_config>` is the name of the experiment configuration file for the respective model and dataset.
 
-In a similar manner, it is possible to evaluate our custom pipeline on OKVQA. To evaluate our final pipeline on the OKVQA test set:
+In a similar manner, it is possible to evaluate our custom pipeline on OK-VQA. To evaluate our final pipeline on the OK-VQA test set:
 ```bash
 cd src/
 python -m torch.distributed.run --nproc_per_node=1 evaluate.py --cfg-path extensions/configs/okvqa_flant5xl_caption_gpt3.yaml
 ```
-There is also a Slurm job file available called `run_eval.job`. Our two main ablation studies can also be tested separately using their configuration file. Ablation approach 1, where GPT-3 picks three questions for BLIP-2 to answer, to then better answer the original question is detailed in `okvqa_flant5xl_abl_questions_gpt3.yaml`. The configuration file for the second ablation where GPT-3 picks the most important noun from the question is called `okvqa_flant5xl_abl_noun_caption_gpt3.yaml`. When using the job file, make sure to also modify the configuration file path if applicable.
+There is also a Slurm job file available called `run_eval.job`. Our two main ablation studies can also be tested separately using their configuration file. Ablation approach 1, where GPT-3 picks three questions for BLIP-2 to answer, is detailed in `okvqa_flant5xl_abl_questions_gpt3.yaml`. The configuration file for the second ablation, where GPT-3 picks the most important noun from the question, is called `okvqa_flant5xl_abl_noun_caption_gpt3.yaml`. When using the job file, make sure to also modify the configuration file path if applicable.
