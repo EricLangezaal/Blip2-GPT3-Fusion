@@ -80,7 +80,7 @@ The original BLIP-2 paper[^5] outlines 3 such datasets, which we also use for re
 | ------- | ------- | --- |
 | ![](/images/vqav2-example.png)  | ![](/images/ok-vqa1.png)  |  ![](/images/gqa-example.png)  |
 
-While these datasets are manually curated using tools such as Amazon Mechanical Turk[^20], the ground truth answers for the visual questions are from rather varying quality. Often, the human answers are factually incorrect, such as the answer "Africa" to the question "What south american country usually has this climate?". It is important to keep this mind, as the vast domain knowledge of GPT-3 can lead to better answers than given by the human annotaters, which leads to underestimation of the world knowledge in the model. 
+While these datasets are manually curated using tools such as Amazon Mechanical Turk[^20], the ground truth answers for the visual questions are from rather varying quality. Often, the human answers are factually incorrect, such as the answer "Africa" to the question "What south american country usually has this climate?". It is important to keep this in mind, as the vast amount of domain knowledge of GPT-3 can lead to better answers than given by the human annotators, which leads to underestimation of the world knowledge of the model. 
 
 ### 5.1 Evaluation metric
 
