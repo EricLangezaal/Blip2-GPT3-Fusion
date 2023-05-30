@@ -173,31 +173,31 @@ As part of our ablation studies, we investigated the impact of moving from a zer
    </thead>
    <tbody>
       <tr>
-        <td>ViT<sub>g</sub> FlanT5<sub>XL</sub></td>
+        <td>ViT-G FlanT5<sub>XL</sub></td>
          <td>Photo description</td>
          <td>Three-shot</td>
         <td><b>44.37</b></td>
       </tr>
        <tr>
-         <td>ViT<sub>g</sub> FlanT5<sub>XL</sub></td>
+         <td>ViT-G FlanT5<sub>XL</sub></td>
          <td>Photo description</td>
          <td>Zero-shot</td>
          <td>42.91</td>
       </tr>
           <tr>
-         <td>ViT<sub>g</sub> Flant5<sub>XL</sub> COCO finetuned</td>
+         <td>ViT-G Flant5<sub>XL</sub> COCO finetuned</td>
          <td>Photo description</td>
          <td>Three-shot</td>
          <td>41.62</td>
       </tr>
       <tr>
-         <td>ViT<sub>g</sub> Flant5<sub>XL</sub></td>
+         <td>ViT-G Flant5<sub>XL</sub></td>
          <td>description generated to GPT-3's questions</td>
          <td>Zero-shot</td>
          <td>38.72</td>
       </tr>
       <tr>
-         <td>ViT<sub>g</sub> FlanT5<sub>XL</sub></td>
+         <td>ViT-G FlanT5<sub>XL</sub></td>
          <td>Photo description + noun description</td>
          <td>Three-shot</td>
          <td>40.62</td>
