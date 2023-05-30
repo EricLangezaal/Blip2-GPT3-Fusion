@@ -98,7 +98,7 @@ The reproduction goal of our research focuses on a specific part of the results 
 ### 6.2 Reproduced results
 The red boxes indicate the results that we attempted to reproduce in our work. We focus on the bottom section of the table since only the BLIP-2 model itself is within the scope of this research, and most models in the top section are closed source as well. For the frozen vision transformer, we only utilize the pretrained model with the ViT-G[^22] encoder for reproduction, since the BLIP-2 pretrained model with the ViT-L encoder from CLIP[^21] was not available to us. As for the frozen large language models, we include both the OPT[^23] as well as the FlanT5[^24] model in our reproduction study. For both models, only the smaller variants are tested, namely the 2.7B and XL versions for OPT and FlanT5 respectively, since our computational resources made it unfeasible to test their larger counterparts (6.7B and XXL variants).
 
-Our reproduction results are presented in the table below. Based on the results in the table, we can state that the accuracies of the OPT and FlanT5 BLIP-2 model variants on the VQA tasks are succesfully reproducable.
+Our reproduction results are presented in the table below. Based on the results in the table, we can state that the accuracies of the OPT and FlanT5 BLIP-2 model variants on the VQA tasks are succesfully reproducible.
 
 <table align="center">
    <thead>
