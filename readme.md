@@ -4,6 +4,9 @@ as well as to execute and demonstrate our own additions. Since SalesForce has pa
 We do need to build the LAVIS repository from source, since they updated the master branch regarding a GitHub issue (re)raised by us, which is not yet included in the PyPI version.
 As such we have only included the minimal required code to reproduce their experiments (see the blogspot for details on the experiments reproduced). 
 
+> [!NOTE]
+> See [the attached blogpost](blogpost.md) for a more detailed explanation of this research.
+
 ## 1. Environment installation
 To get conflicting dependencies to function we needed to modify the environment more than a simple YAML file would allow.
 For installation specifically on a Lisa cluster environment we made a script to automate the installation process.
